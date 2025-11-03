@@ -20,12 +20,20 @@ Ryzen™ AIのAI EngineとNPU配列の独自機能をさらに説明するため
 
 ## 演習問題
 
-1. [bottleneck](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/bottleneck/)設計では、何種類の融合計算が観察できますか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="2. Convolution fused with ReLU and Convolution fused with element-wise addition. Please note that fusing adjacent convolution and batch norm layers is another inference-time optimization, which our implementation can handle." height=25>
+1. [bottleneck](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/bottleneck/)設計では、何種類の融合計算が観察できますか？
+   <details>
+   <summary>答えを見る</summary>
+   2種類。ReLUと融合された畳み込みと、要素ごとの加算と融合された畳み込みです。なお、隣接する畳み込み層とバッチ正規化層の融合は、推論時の別の最適化であり、この実装でも処理できます。
+   </details>
 
-2. [bottleneck](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/bottleneck/)設計でデータフローアプローチに従う場合、3x3畳み込み演算が計算を進めるために1x1畳み込みコアからいくつの要素を必要としますか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="3. This allows for the necessary neighborhood information required by the convolutional kernel to be available for processing." height=25>
+2. [bottleneck](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/bottleneck/)設計でデータフローアプローチに従う場合、3x3畳み込み演算が計算を進めるために1x1畳み込みコアからいくつの要素を必要としますか？
+   <details>
+   <summary>答えを見る</summary>
+   3要素。これにより、畳み込みカーネルが処理に必要な近傍情報が利用可能になります。
+   </details>
 
-3. 入力次元が32x32x256のボトルネックブロックがあるとします。1x1畳み込み層を通過した後、出力次元は32x32x64になります。その後の3x3畳み込み層（ストライド1、パディングなし、出力チャネル64）を通過した後の出力次元はどうなりますか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="30×30×64. Without padding, the spatial dimensions would shrink by two pixels in each dimension due to the 3x3 convolution operation." height=25>
-
------
-
-[[前へ - Section 5](../section-5/index.html)] [[トップ](../index.html)]
+3. 入力次元が32x32x256のボトルネックブロックがあるとします。1x1畳み込み層を通過した後、出力次元は32x32x64になります。その後の3x3畳み込み層（ストライド1、パディングなし、出力チャネル64）を通過した後の出力次元はどうなりますか？
+   <details>
+   <summary>答えを見る</summary>
+   30×30×64。パディングがないため、3x3畳み込み演算により各次元で2ピクセルずつ空間次元が縮小します。
+   </details>

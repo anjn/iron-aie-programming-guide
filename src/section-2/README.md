@@ -1,41 +1,48 @@
-# Section 2 - Data Movement (Object FIFOs)
+# Section 2 - データ移動（Object FIFO）
 
-このガイドでは、AIE配列内のデータ移動を記述するための高レベル通信プリミティブである**Object FIFO**を紹介します。
+このセクションでは、AIE配列内のデータ移動を記述するために使用される高レベル通信プリミティブ「Object FIFO」を紹介します。このガイドの最後には、以下ができるようになります：
 
-## 主な学習目標
+1. 通信プリミティブAPIの高レベルな理解を得る
+2. 意味のある設計例を通じてObject FIFOの初期化とアクセス方法を学ぶ
+3. Object FIFO設計における現在の制限や制約につながった設計上の決定を理解する
+4. Object FIFOの実装とより低レベルの変換に関するより詳細な資料がどこにあるかを知る
 
-このガイドは、開発者が以下を習得することを目的としています：
+データ移動抽象化の必要性を理解するには、まず扱っているハードウェアアーキテクチャを理解する必要があります。AIE配列は、明示的なデータ移動要件を持つ[空間演算アーキテクチャ](../index.html)です。配列の各コンピュートユニットは、そのL1メモリモジュール内に格納されているデータを処理します。そのデータは、AIE配列のグローバルデータ移動設定の一部として、そこに明示的に移動される必要があります。この設定には、データが損失なく目的地に到着するように配列全体でデータ移動を処理するいくつかの特殊なハードウェアリソースが含まれます。Object FIFOは、ハードウェアが提供するより高度な制御可能性を犠牲にすることなく、より人間が理解しやすくアクセスしやすい方法でデータ移動を指定する方法をユーザーに提供します。
 
-1. 通信プリミティブAPIを概念レベルで理解する
-2. 実践的な設計例を通じて初期化とアクセス方法を学ぶ
-3. 現在のObject FIFOの制限の背後にある設計上の決定を理解する
-4. 実装詳細に関するより深い資料を見つける
+> **注意:** MLIRでのObject FIFOプログラミングに関するより詳細で低レベルな資料については、MLIR-AIE[チュートリアル](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/mlir_tutorials/)を参照してください。
 
-## 核心概念
+このガイドは5つのセクションに分かれており、各セクションは前のセクションの上に構築されます：
 
-「AIE配列は、明示的なデータ移動要件を持つ空間演算アーキテクチャです。」各処理ユニットはそのL1メモリ内のデータに対して動作しますが、これは配列全体での移動のために明示的に設定する必要があります。Object FIFOにより、開発者は高度なハードウェア制御機能を維持しながら、このデータ移動をアクセス可能な方法で指定できます。
+> **注意:** Section 2fには、Object FIFOを使用した一般的な設計パターンを含む実践的なコード例が多数含まれており、すぐに取得して目的の用途に合わせて調整できます。
 
-## ガイドの構成
+- [Section 2a - はじめに](./section-2a/index.html)
+  - Object FIFOの初期化
+  - Object FIFOのオブジェクトへのアクセス
+  - 同じプロデューサ/コンシューマを持つObject FIFO
 
-資料は7つの段階的なセクションで構成されています：
+- [Section 2b - 主要なObject FIFOパターン](./section-2b/index.html)
+  - Object FIFOがサポートするデータ移動パターンの紹介
+    - 再利用（Reuse）
+    - ブロードキャスト（Broadcast）
+    - 分散（Distribute）
+    - 結合（Join）
 
-- **[Section 2a](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2a)**: 基礎（初期化、アクセス、同一プロデューサ/コンシューマシナリオ）
-- **[Section 2b](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b)**: 主要パターン（再利用、ブロードキャスト、分散、結合）
-- **[Section 2c](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2c)**: データレイアウト変換
-- **[Section 2d](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2d)**: ホストメモリとの間のランタイムデータ移動
-- **[Section 2e](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2e)**: マルチコア設計の最適化
-- **[Section 2f](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2f)**: 一般的な設計パターンを含む実践的なコード例
-- **[Section 2g](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2g)**: 代替のDMAリージョンプログラミングアプローチ
+- [Section 2c - データレイアウト変換](./section-2c/index.html)
+  - データレイアウト変換機能の紹介
 
-## Object FIFOとは
+- [Section 2d - ランタイムデータ移動](./section-2d/index.html)
+  - ホストメモリとAIE配列間のランタイムデータ移動を管理するプロセスのウォークスルー
 
-Object FIFOは、AIE配列内の異なるタイル間でデータを移動するための抽象化レイヤーです。従来の手動DMA設定と比較して、以下の利点があります：
+- [Section 2e - 複数コアのプログラミング](./section-2e/index.html)
+  - 複数コアを持つ設計への効率的なアップグレードプロセスのウォークスルー
 
-- **高レベル抽象化**: 複雑なDMA設定を隠蔽
-- **明示的なデータフロー**: データの流れを明確に表現
-- **柔軟な通信パターン**: ブロードキャスト、分散、結合などをサポート
-- **効率的なバッファ管理**: 自動的なバッファリング戦略
+- [Section 2f - 実践的な例](./section-2f/index.html)
+  - Object FIFOを使用した実践的な例
+    - シングル/ダブルバッファ
+    - 外部メモリからコアへ
+    - L2を使用した外部メモリからコアへ
+    - L2での分散
+    - L2での結合
 
----
-
-**注意**: 各サブセクションの詳細な翻訳は進行中です。最新の情報は[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2)を参照してください。
+- [Section 2g - Object FIFOを使用しないデータ移動](./section-2g/index.html)
+  - DMAリージョンをプログラミングするプロセスのウォークスルー

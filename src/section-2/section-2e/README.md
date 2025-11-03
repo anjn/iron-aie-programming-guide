@@ -1,88 +1,150 @@
 # Section 2e - マルチコアプログラミング
 
-## 概要
+このセクションでは、単一コア設計をマルチコア設計に変換する方法を実演します。高レベルIRONと明示的配置レベルIRONの両方について説明します。
 
-このセクションでは、単一コアのコードをマルチコア設計に変換する方法を、2つのIRON APIレベルで実演します。プロセスは、1つのWorker/コンピュートタイルから3つへとスケーリングし、同じ基本的なロジックを維持しながら、処理ユニット間でワークロードを分散します。
+## 高レベルIRON
 
-## 高レベルIRONアプローチ
+### 初期設定とデータ移動
 
-### 初期の単一コア設計
+最初のシンプルな設計（[aie2.py](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2e/aie2.py)）では、`<48xi32>`データ型のオブジェクトを持つ4つのObject FIFOを使用します：外部メモリとメモリタイル間の入力用に1つ(`of_in`)、メモリタイルとWorker間の入力用に1つ(`of_in1`)、Worker実行出力用に1つ(`of_out1`)、出力をメモリタイルから外部メモリに戻すために1つ(`of_out`)です。Workerのタスクは、入力を取得し、エントリを1ずつ増加させ、その結果を出力に格納し、両方を解放することです。
 
-基盤となる設計は、`<48xi32>`型のデータオブジェクトを扱う4つのObject FIFOを使用します。
-
-**アーキテクチャ:**
-
-```
-入力パス: 外部メモリ → メモリタイル → Worker
-          (of_in)    (of_in0)
-
-出力パス: Worker → メモリタイル → 外部メモリ
-          (of_out0)    (of_out)
-```
-
-**Workerタスク:**
-1. 入力オブジェクトを取得
-2. 各エントリを1ずつインクリメント
-3. 結果を出力にコピー
-4. 両方を解放
-
-### マルチコアへのスケーリング
-
-変換では、単一のメモリタイルを維持しながら3つのWorkerに拡張します。各Workerは、`<16xi32>`オブジェクト（48÷3）を処理します。
-
-#### 主な変更点
-
-**1. データ移動設定:**
+**単一Worker設計のデータ移動:**
 
 ```python
-# 入力: 分散操作を使用
-# 完全なデータセットを3つのObject FIFOに分配
-of_in0_fifos = [
-    ObjectFifo(tile_size_type, name=f"in0_{i}", depth=2)
-    for i in range(3)
-]
+data_size = 48
 
-# オフセットでデータ位置を追跡
-offsets = [0, 16, 32]
+# テンソル型の定義
+data_ty = np.ndarray[(data_size,), np.dtype[np.int32]]
 
-# 出力: 結合操作を使用
-# 3つの別々のFIFOから結果を収集
-of_out0_fifos = [
-    ObjectFifo(tile_size_type, name=f"out0_{i}", depth=2)
-    for i in range(3)
-]
+# 入力データ移動
+of_in = ObjectFifo(data_ty, name="in")
+of_in1 = of_in.cons().forward(obj_type=data_ty, name="in1")
+
+# 出力データ移動
+of_out1 = ObjectFifo(data_ty, name="out1")
+of_out = of_out1.cons().forward(obj_type=data_ty, name="out")
 ```
 
-**2. Worker作成:**
+スケールアウトした設計（[aie2_multi.py](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2e/aie2_multi.py)）では、単一のメモリタイルを維持しますが、3つのWorkerに拡張します。Object FIFOオブジェクトのデータ型は`<16xi32>`に変更され、複数のWorker間でデータを分散および結合するためのObject FIFOリンク（[分散と結合パターンを参照](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/03_Implicit_Copy/README.md)）が追加されました：
+
+**マルチWorker設計のデータ移動:**
 
 ```python
-# ループで複数のWorkerをインスタンス化
-workers = []
-for i in range(3):
-    worker = Worker(
-        core_fn,
-        [of_in0_fifos[i].cons(), of_out0_fifos[i].prod()],
-        name=f"worker_{i}"
+n_workers = 3
+data_size = 48
+tile_size = data_size // 3
+
+# テンソル型の定義
+data_ty = np.ndarray[(data_size,), np.dtype[np.int32]]
+tile_ty = np.ndarray[(tile_size,), np.dtype[np.int32]]
+
+# 入力データ移動
+of_offsets = [tile_size * worker for worker in range(n_workers)]
+
+of_in = ObjectFifo(data_ty, name="in")
+of_ins = (
+    of_in
+    .cons()
+    .split(
+        of_offsets,
+        obj_types=[tile_ty] * n_workers,
+        names=[f"in{worker}" for worker in range(n_workers)],
     )
-    workers.append(worker)
+)
+
+# 出力データ移動
+of_out = ObjectFifo(data_ty, name="out")
+of_outs = (
+    of_out.prod().join(
+        of_offsets,
+        obj_types=[tile_ty] * n_workers,
+        names=[f"out{worker}" for worker in range(n_workers)],
+    )
+)
 ```
 
-**3. ランタイムシーケンス:**
+### Worker実装
+
+最初のWorkerの実装では、配列演算が可能なPythonスクリプトを参照するだけです。
+
+**単一Worker:**
 
 ```python
-# すべてのWorkerを同時に開始
-rt.start(*workers)
+# コアが実行するタスク
+def core_fn(of_in, of_out):
+    elem_in = of_in.acquire(1)
+    elem_out = of_out.acquire(1)
+    for i in range_(data_size):
+        elem_out[i] = elem_in[i] + 1
+    of_in.release(1)
+    of_out.release(1)
 
-# データフロー管理
-rt.fill(of_in, input_data)
-rt.drain(of_out, output_data)
+
+# タスクを実行するWorkerを作成
+my_worker = Worker(core_fn, [of_in1.cons(), of_out1.prod()])
+```
+
+マルチWorker設計では、同じカーネルが異なるオブジェクトサイズで3回インスタンス化されます。
+
+**複数のWorker:**
+
+```python
+# タスクを実行するWorkerを作成
+workers = []
+for worker in range(n_workers):
+    workers.append(
+        Worker(
+            core_fn,
+            [
+                of_ins[worker].cons(),
+                of_outs[worker].prod(),
+            ],
+        )
+    )
+```
+
+### ランタイムシーケンス
+
+最後に、ランタイムシーケンスは、AIE配列との間でデータを移動させるホスト実行コードを定義します。
+
+**単一Workerランタイム:**
+
+```python
+# AIE配列との間でデータを移動するランタイム操作
+rt = Runtime()
+with rt.sequence(data_size, data_size, data_size) as (a_in, b_out, _):
+    rt.start(my_worker)
+    rt.fill(of_in.prod(), a_in)
+    rt.drain(of_out.cons(), b_out, wait=True)
+```
+
+マルチWorker設計では、`rt.start()`への呼び出しが少し変わるだけです。
+
+**マルチWorkerランタイム:**
+
+```python
+# AIE配列との間でデータを移動するランタイム操作
+rt = Runtime()
+with rt.sequence(data_size, data_size, data_size) as (a_in, b_out, _):
+    rt.start(*workers)
+    rt.fill(of_in.prod(), a_in)
+    rt.drain(of_out.cons(), b_out, wait=True)
+```
+
+### コンパイル
+
+両方の設計を次のコマンドでコンパイルして実行できます：
+```bash
+make all
 ```
 
 ## 明示的配置レベルIRON
 
 ### タイル宣言
 
-**単一コア設定:**
+最初の設計（[aie2_placed.py](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2e/aie2_placed.py)）では、3つのタイルを宣言します：1つのコンピュートタイル、1つのメモリタイル、1つのshimタイルです。これらのタイルのリソースは、それぞれデータ処理、ストレージ、外部メモリアクセスの目的で割り当てられます。
+
+**単一コア設計のタイル:**
 
 ```python
 ShimTile = tile(0, 0)
@@ -90,129 +152,132 @@ MemTile = tile(0, 1)
 ComputeTile = tile(0, 2)
 ```
 
-**マルチコア設定:**
+マルチコア設計（[aie2_placed_multi.py](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2e/aie2_placed_multi.py)）では、1つのコンピュートタイルの代わりに3つのコンピュートタイルを宣言します。
+
+**マルチコア設計のタイル:**
 
 ```python
+n_cores = 3
+
 ShimTile = tile(0, 0)
 MemTile = tile(0, 1)
-ComputeTile1 = tile(0, 2)
-ComputeTile2 = tile(0, 3)
-ComputeTile3 = tile(0, 4)
+ComputeTiles = [tile(0, 2 + i) for i in range(n_cores)]
 ```
 
-### データ移動アーキテクチャ
+### データ移動の設定
 
-高レベルIRONと同様の分散/結合パターンを採用：
+次に、タイル間のデータ移動を設定します。高レベルIRONでのアプローチと同様に、最初の設計では4つのObject FIFOを使用し、マルチコア設計ではObject FIFOリンクを使用します。
 
-**入力Object FIFO:**
+**単一コア設計のObject FIFO:**
 
 ```python
-# 完全データを3つのストリームに分割
-of_in0_0 = object_fifo("in0_0", MemTile, ComputeTile1, 2, tile_size_type)
-of_in0_1 = object_fifo("in0_1", MemTile, ComputeTile2, 2, tile_size_type)
-of_in0_2 = object_fifo("in0_2", MemTile, ComputeTile3, 2, tile_size_type)
+data_size = 48
+buffer_depth = 2
+data_ty = np.ndarray[(48,), np.dtype[np.int32]]
 
-# 分散リンク
-object_fifo_link("in", "in0", [0, 16, 32])
+
+# 入力データ移動
+
+of_in = object_fifo("in", ShimTile, MemTile, buffer_depth, data_ty)
+of_in0 = object_fifo("in0", MemTile, ComputeTile, buffer_depth, data_ty)
+object_fifo_link(of_in, of_in0)
+
+
+# 出力データ移動
+
+of_out = object_fifo("out", MemTile, ShimTile, buffer_depth, data_ty)
+of_out0 = object_fifo("out0", ComputeTile, MemTile, buffer_depth, data_ty)
+object_fifo_link(of_out0, of_out)
 ```
 
-**出力Object FIFO:**
+<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/programming_guide/assets/SingleDesign.svg" height="300" width="700">
+
+マルチコア設計のObject FIFOは、最初の設計から大きく変更されています（[分散と結合パターンを参照](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/03_Implicit_Copy/README.md)）。
+
+**マルチコア設計のObject FIFO:**
 
 ```python
-# 結合リンク
-object_fifo_link("out0", "out", [0, 16, 32])
+n_cores = 3
+data_size = 48
+tile_size = data_size // 3
+
+buffer_depth = 2
+data_ty = np.ndarray[(data_size,), np.dtype[np.int32]]
+tile_ty = np.ndarray[(tile_size,), np.dtype[np.int32]]
+
+# 入力データ移動
+inX_fifos = []
+
+of_in = object_fifo("in", ShimTile, MemTile, buffer_depth, data_ty)
+for i in range(n_cores):
+    inX_fifos.append(object_fifo(
+        f"in{i}", MemTile, ComputeTiles[i], buffer_depth, tile_ty
+    ))
+
+# 入力/出力データの結合/分散のためのオフセットを計算
+if n_cores > 1:
+    of_offsets = [16 * i for i in range(n_cores)]
+else:
+    of_offsets = []
+object_fifo_link(of_in, inX_fifos, [], of_offsets)
+
+
+# 出力データ移動
+outX_fifos = []
+
+of_out = object_fifo("out", MemTile, ShimTile, buffer_depth, data_ty)
+for i in range(n_cores):
+    outX_fifos.append(object_fifo(
+        f"out{i}", ComputeTiles[i], MemTile, buffer_depth, tile_ty
+    ))
+object_fifo_link(outX_fifos, of_out, of_offsets, [])
 ```
 
-### コア実行
+<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/programming_guide/assets/MultiDesign.svg" width="1000">
 
-各コンピュートタイルは、FIFOリストにインデックスを付けて適切な入力/出力チャネルにアクセスし、ループ構造内で同一のロジックを実行します。
+### コア実装
+
+この段階では、各コンピュートタイルがどのコードを実行するかを指定します。
+
+**単一コア:**
 
 ```python
-@core(ComputeTile1)
-def core_body_1():
-    for _ in range_(iterations):
-        elem_in = of_in0_fifos[0].acquire(1)
-        elem_out = of_out0_fifos[0].acquire(1)
-        # 処理...
-        of_in0_fifos[0].release(1)
-        of_out0_fifos[0].release(1)
+@core(ComputeTile)
+def core_body():
+    # 実質的にwhile(1)
+    for _ in range_(0xFFFFFFFF):
+        elem_in = of_in0.acquire(ObjectFifoPort.Consume, 1)
+        elem_out = of_out0.acquire(ObjectFifoPort.Produce, 1)
+        for i in range_(data_size):
+            elem_out[i] = elem_in[i] + 1
+        of_in0.release(ObjectFifoPort.Consume, 1)
+        of_out0.release(ObjectFifoPort.Produce, 1)
 ```
 
-**重要な変更点:**
-- 完全なデータセットではなく、タイルサイズのデータチャンクを処理
-- 各コアは割り当てられたデータ部分のみを処理
+マルチコア設計では、各コアは前のステップのObject FIFO設定に応じて、適切なObject FIFOのインデックスを使用します。重要な違いは、`data_size`ではなく`tile_size`を処理することです。
 
-## データ分散の詳細
+**マルチコア:**
 
-### 分散（Distribute）パターン
-
-```
-全体データ: [0, 1, 2, ..., 47]  (48要素)
-
-↓ 分散 (オフセット: [0, 16, 32])
-
-Worker 1: [0, 1, ..., 15]   (16要素)
-Worker 2: [16, 17, ..., 31] (16要素)
-Worker 3: [32, 33, ..., 47] (16要素)
-```
-
-### 結合（Join）パターン
-
-```
-Worker 1 出力: [processed_0, ..., processed_15]
-Worker 2 出力: [processed_16, ..., processed_31]
-Worker 3 出力: [processed_32, ..., processed_47]
-
-↓ 結合 (オフセット: [0, 16, 32])
-
-全体出力: [processed_0, ..., processed_47]
+```python
+for i in range(n_cores):
+    # コンピュートタイル i
+    @core(ComputeTiles[i])
+    def core_body():
+        for _ in range_(0xFFFFFFFF):
+            elem_in = inX_fifos[i].acquire(ObjectFifoPort.Consume, 1)
+            elem_out = outX_fifos[i].acquire(ObjectFifoPort.Produce, 1)
+            for j in range_(tile_size):
+                elem_out[j] = elem_in[j] + 1
+            inX_fifos[i].release(ObjectFifoPort.Consume, 1)
+            outX_fifos[i].release(ObjectFifoPort.Produce, 1)
 ```
 
-## 並列実行の利点
+### コンパイル
 
-### 性能向上
-
-- **スループット**: 理想的には3倍の性能
-- **レイテンシ**: データ分割により部分的に改善
-- **リソース使用**: 複数のコアを効率的に活用
-
-### スケーラビリティ
-
-- コア数に応じて簡単にスケール
-- 同じパターンで4コア、8コア以上に拡張可能
-- メモリ階層を考慮した設計
-
-## コンパイル
-
-**高レベルIRON:**
-```bash
-make all
-```
-
-**明示的配置IRON:**
+両方の設計を次のコマンドでコンパイルして実行できます：
 ```bash
 make placed
 ```
-
-## 設計上の考慮事項
-
-### ワークロード分散
-
-- データを均等に分割
-- 各Workerの計算量を同等に
-- 負荷バランスの最適化
-
-### 同期とタイミング
-
-- すべてのWorkerが同時に開始
-- データ依存関係の管理
-- 結合時の順序保証
-
-### メモリ管理
-
-- メモリタイルの効率的な使用
-- L1メモリの適切な割り当て
-- バッファリング戦略の最適化
 
 ---
 

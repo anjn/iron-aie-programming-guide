@@ -1,6 +1,6 @@
 # Section 1 - Basic AI Engine building blocks
 
-AIE配列をプログラミングする際、その構造的な構成要素を宣言して設定する必要があります：ベクトル処理のための**コンピュートタイル（compute tiles）**、より大きなレベル2の共有スクラッチパッドとしての**メモリタイル（memory tiles）**、NPU外部メモリ（つまりメインメモリ）へのデータ移動をサポートする**シムタイル（shim tiles）**です。このプログラミングガイドでは、IRON Pythonライブラリを使用します。これにより、使用するAI Engineタイルの選択、各タイルが実行すべきコード、タイル間のデータ移動方法、CPU側からの設計呼び出し方法など、NPU設計全体を記述できます。後ほど、C/C++でのベクトルプログラミングを探求します。これは個々のコンピュートタイル用の計算カーネルを最適化するのに役立ちます。
+AIE配列をプログラミングする際、その構造的な構成要素を宣言して設定する必要があります：ベクトル処理のための**コンピュートタイル**（compute tiles）、より大きなレベル2の共有スクラッチパッドとしての**メモリタイル**（memory tiles）、NPU外部メモリ（つまりメインメモリ）へのデータ移動をサポートする**シムタイル**（shim tiles）です。このプログラミングガイドでは、IRON Pythonライブラリを使用します。これにより、使用するAI Engineタイルの選択、各タイルが実行すべきコード、タイル間のデータ移動方法、CPU側からの設計呼び出し方法など、NPU設計全体を記述できます。後ほど、C/C++でのベクトルプログラミングを探求します。これは個々のコンピュートタイル用の計算カーネルを最適化するのに役立ちます。
 
 ## Pythonソースファイル（aie2.py）のウォークスルー
 
@@ -47,14 +47,14 @@ def core_fn():
 my_worker = Worker(core_fn, [], placement=Tile(0, 2), while_true=False)
 ```
 
-> **注意 1:** `range_`のアンダースコアに気付きましたか？IRONはNPU設計を通常のPythonプログラムのように見せますが、ここで書くコードがNPU上で直接実行されるわけ_ではない_ことを理解することが重要です。代わりに、IRON設計で書くコードは_他のコードを生成します_（メタプログラミング）。これは、コード文字列を含むprint文を書くようなものです。その後、ツールチェーンがこの生成された他のコードをコンパイルし、それがNPU上で直接実行できるようになります。
+> **注意 1:** `range_`のアンダースコアに気付きましたか？IRONはNPU設計を通常のPythonプログラムのように見せますが、ここで書くコードがNPU上で直接実行されるわけ _ではない_ ことを理解することが重要です。代わりに、IRON設計で書くコードは _他のコードを生成します_ （メタプログラミング）。これは、コード文字列を含むprint文を書くようなものです。その後、ツールチェーンがこの生成された他のコードをコンパイルし、それがNPU上で直接実行できるようになります。
 >
 > これは、上記の例で`range_`の代わりに`range`を書くと、生成されるNPUコードには多くの`local[i] = 0`命令が含まれますが、ループは全くないということを意味します（ループは「展開」され、バイナリが大きくなり、ループの反復回数はコード生成時に固定されている必要があります）。一方、`range_`を使用すると、Pythonはループ本体を1回だけ実行して（そこに含まれる命令を収集し）、NPUコードにループを発行します。そしてNPUがループを実行します。
 > 同じことは`if`のような他の分岐構造にも当てはまります。Pythonのネイティブ構造を使用すると、NPUコードに実際の分岐が発行されないことを意味します！
 
 > **注意 2:** 上記のコードのWorkerは`while_true=False`でインスタンス化されています。デフォルトでは、この属性は`True`に設定されており、その場合、タスクで表現されるカーネルコードは、ステップ1で`sys.maxsize`まで反復するforループでラップされます。これは、Workerのコードを無限にループさせる意図で`while(True)`をシミュレートします。一意の名前でローカルバッファを作成する場合など、タスクコードによっては、これによりコンパイラの問題が発生する可能性があります。
 
-前のコードスニペットで、Worker間のデータ移動を設定する必要があると述べました。これには、`Runtime`シーケンス内で処理されるAIE配列との間のデータ移動は含まれません。プログラミングガイドには、ランタイムデータ移動の専用[セクション](../section-2/index.html)があります。この例では、データ移動設定を詳しく見ないため、ランタイムシーケンスはWorkerを開始するだけです。
+前のコードスニペットで、Worker間のデータ移動を設定する必要があると述べました。これには、`Runtime`シーケンス内で処理されるAIE配列との間のデータ移動は含まれません。プログラミングガイドには、ランタイムデータ移動の専用[セクション](../section-2/section-2d/index.html)があります。この例では、データ移動設定を詳しく見ないため、ランタイムシーケンスはWorkerを開始するだけです。
 
 ```python
 # AIE配列との間でデータを移動するランタイム操作
@@ -159,17 +159,37 @@ with mlir_mod_ctx() as ctx:
 
 1. コマンドラインからPythonプログラムを実行するには、`python3 aie2.py`と入力します。これにより、Python構造設計がMLIRソースコードに変換されます。設計環境にmlir-aie Pythonバインドダイアレクトモジュールが既に含まれている場合、コマンドラインから機能します。これを[Makefile](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_guide/section-1/Makefile)に含めたので、今すぐ`make`を実行してください。次に、`build/aie.mlir`で生成されたMLIRソースを確認します。
 
-2. `make clean`を実行して生成されたファイルを削除します。Workerのコード（`core_fn`）で`range_`を`range`（アンダースコアなし）に置き換えます。何が起こると予想しますか？`build/aie.mlir`の生成されたコードを調査し、生成されたコードがどのように変更されたかを観察してください。<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="生成されたMLIRコードにはループが含まれず、代わりに同じ命令が何度も繰り返されます。" height=25>
+2. `make clean`を実行して生成されたファイルを削除します。Workerのコード（`core_fn`）で`range_`を`range`（アンダースコアなし）に置き換えます。何が起こると予想しますか？`build/aie.mlir`の生成されたコードを調査し、生成されたコードがどのように変更されたかを観察してください。
+   <details>
+   <summary>答えを見る</summary>
+   生成されたMLIRコードにはループが含まれず、代わりに同じ命令が何度も繰り返されます。
+   </details>
 
-3. 再び`make clean`を実行します。次に、`sequence`を`sequenc`にスペルミスするなど、Pythonソースにエラーを導入し、再び`make`を実行します。どのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="sequencが認識されないため、Pythonエラーがあります。" height=25>
+3. 再び`make clean`を実行します。次に、`sequence`を`sequenc`にスペルミスするなど、Pythonソースにエラーを導入し、再び`make`を実行します。どのようなメッセージが表示されますか？
+   <details>
+   <summary>答えを見る</summary>
+   sequencが認識されないため、Pythonエラーがあります。
+   </details>
 
-4. 再び`make clean`を実行します。次に、`sequenc`を`sequence`に戻してエラーを変更しますが、Workerを座標(-1, 3)のタイルに配置します。これは無効な場所です。再び`make`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="部分配置エラーがあります。" height=25>
+4. 再び`make clean`を実行します。次に、`sequenc`を`sequence`に戻してエラーを変更しますが、Workerを座標(-1, 3)のタイルに配置します。これは無効な場所です。再び`make`を実行します。今度はどのようなメッセージが表示されますか？
+   <details>
+   <summary>答えを見る</summary>
+   部分配置エラーがあります。
+   </details>
 
-5. 再び`make clean`を実行します。Workerタイルを元の座標に戻します。Workerから`while_true=False`属性を削除し、再び`make`を実行します。何が観察されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="Workerタスクコードがforループ内にネストされています。" height=25>
+5. 再び`make clean`を実行します。Workerタイルを元の座標に戻します。Workerから`while_true=False`属性を削除し、再び`make`を実行します。何が観察されますか？
+   <details>
+   <summary>答えを見る</summary>
+   Workerタスクコードがforループ内にネストされています。
+   </details>
 
 6. 次に、配置されたバージョンのコードを見てみましょう。`make placed`を実行し、`build/aie_placed.mlir`で生成されたMLIRソースを確認します。
 
-7. `make clean`を実行して生成されたファイルを削除します。`ComputeTile1`の座標を(-1,3)に変更して、上記と同じエラーを導入します。再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="エラーは生成されません。" height=25>
+7. `make clean`を実行して生成されたファイルを削除します。`ComputeTile1`の座標を(-1,3)に変更して、上記と同じエラーを導入します。再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？
+   <details>
+   <summary>答えを見る</summary>
+   エラーは生成されません。
+   </details>
 
 8. エラーは生成されませんが、コードは無効です。`build/aie_placed.mlir`で生成されたMLIRコードを確認してください。この生成された出力は無効なMLIR構文であり、このMLIRソースでmlir-aieツールを実行するとエラーが生成されます。ただし、関数`ctx.module.operation.verify()`を使用すると有効化できる追加のPython構造構文チェックがあります。これは、Pythonバインドコードがmlir-aieコンテキスト内で有効な操作を持っているかどうかを検証します。
 
@@ -181,7 +201,11 @@ with mlir_mod_ctx() as ctx:
     else:
         print(res)
     ```
-    この変更を行い、再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="最小値が0であるため、'column value fails to satisfy the constraint'と表示されるようになります。" height=25>
+    この変更を行い、再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？
+    <details>
+    <summary>答えを見る</summary>
+    最小値が0であるため、'column value fails to satisfy the constraint'と表示されるようになります。
+    </details>
 
 ---
 

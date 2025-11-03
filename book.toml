@@ -11,10 +11,10 @@ build-dir = "book"
 
 [output.html]
 default-theme = "light"
-preferred-dark-theme = "navy"
-git-repository-url = "https://github.com/Xilinx/mlir-aie"
+preferred-dark-theme = "rust"
+git-repository-url = "https://github.com/anjn/iron-aie-programming-guide"
 git-repository-icon = "fa-github"
-additional-css = ["theme/custom.css"]
+additional-css = ["src/theme/custom.css"]
 no-section-label = true
 
 [output.html.fold]

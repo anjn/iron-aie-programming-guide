@@ -5,20 +5,16 @@
 ## 推奨ハードウェアの例
 
 * [Phoenix Point Mini PC: Minisforum EM780 : AMD Ryzen™ 7 7840U](https://www.minisforum.com/collections/amd-series/products/minisforum-em780)
-
 * [Hawk Point Mini PC: Minisforum UM890 Pro : AMD Ryzen™ 9 8945HS](https://www.minisforum.com/collections/amd-series/products/minisforum-um890-pro)
-
 * [Strix Point Mini PC: Minisforum AI X1 Pro : AMD Ryzen™ AI 9 HX 370](https://www.minisforum.com/products/minisforum-ai-x1-pro)
-
 * [Krackan Point Mini PC: ASRock 4x4 BOX-AI350 : AMD Ryzen™ AI 7 350](https://www.asrockind.com/en-gb/4X4%20BOX-AI350)
 
 ## AMD Ryzen™ AI 初期セットアップ
 
-#### **クイックセットアップの手順に必ず従ってください。**
+クイックセットアップの手順に必ず従ってください。
 
-### [Linux上でAMD Ryzen™ AIを使い始める](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/README.md)（推奨）
-
-### [Linux上でIRONとMLIR-AIEをソースからビルド](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/docs/Building.md)
+* [Linux上でAMD Ryzen™ AIを使い始める](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/README.md)（推奨）
+* [Linux上でIRONとMLIR-AIEをソースからビルド](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/docs/Building.md)
 
 ---
 

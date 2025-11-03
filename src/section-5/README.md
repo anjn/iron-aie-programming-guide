@@ -47,10 +47,26 @@
 
 ## 演習問題
 
-1. [passthrough](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/passthrough_kernel/)設計を変更して、より多く（または少なく）データをコピーできますか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="Check the Makefile...in1_size and out_size" height=25>
+1. [passthrough](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/passthrough_kernel/)設計を変更して、より多く（または少なく）データをコピーできますか？
+   <details>
+   <summary>答えを見る</summary>
+   Makefileを確認してください。in1_sizeとout_sizeを変更します。
+   </details>
 
-2. [Vector Exp](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_exp/)例の[test.cpp](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_examples/basic/vector_exp/test.cpp)のテストベンチを見てください。データ型とテストベクトルのサイズに注目してください。何に気づきますか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="We are testing 65536 values or 2^16, therefore testing all possible bfloat16 values through the approximation." height=25>
+2. [Vector Exp](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_exp/)例の[test.cpp](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_examples/basic/vector_exp/test.cpp)のテストベンチを見てください。データ型とテストベクトルのサイズに注目してください。何に気づきますか？
+   <details>
+   <summary>答えを見る</summary>
+   65536個の値、つまり2^16個をテストしています。したがって、すべての可能なbfloat16値を近似を通してテストしています。
+   </details>
 
-3. [ReLU](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/relu/)における通信対計算比は何ですか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="~6 as reported by the Trace. This is why it is a good candiate for kernel fusion with Conv2D or GEMMs for ML." height=25>
+3. [ReLU](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/relu/)における通信対計算比は何ですか？
+   <details>
+   <summary>答えを見る</summary>
+   トレースによると約6です。これが、Conv2DやGEMMとのカーネル融合が機械学習において有効な理由です。
+   </details>
 
-4. **難問** どの基本例が[Softmax](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/softmax/)のコンポーネントになっていますか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="Vector Exp" height=25>
+4. **難問** どの基本例が[Softmax](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/softmax/)のコンポーネントになっていますか？
+   <details>
+   <summary>答えを見る</summary>
+   Vector Exp
+   </details>

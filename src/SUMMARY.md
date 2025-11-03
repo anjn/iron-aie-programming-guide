@@ -1,7 +1,6 @@
 # Summary
 
 [はじめに](./README.md)
-[クイックリファレンス](./quick_reference.md)
 
 ---
 
@@ -32,3 +31,4 @@
 ---
 
 [ミニチュートリアル](./mini_tutorial/README.md)
+[クイックリファレンス](./quick_reference.md)

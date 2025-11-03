@@ -1,254 +1,153 @@
 # Section 2g - Object FIFOを使わないデータ移動
 
-## 概要
+すべてのデータ移動パターンがObject FIFOで記述できるわけではありません。この**高度な**セクションでは、AIEタイルのDirect Memory Access チャネル（または`DMA`）を使用してデータ移動を表現する方法について詳しく説明します。このセクションで紹介されるコードと概念をより理解するために、まず[Section 2aの高度なトピック - DMAについて](../section-2a/README.md#高度なトピックデータ移動アクセラレータ)を読むことをお勧めします。
 
-この高度なガイドセクションは、Object FIFOが必要なパターンを記述できない場合に、AIEタイルでのデータ移動にDirect Memory Access（DMA）チャネルを使用することに焦点を当てています。この資料は**「IRONレベル」**の難易度としてマークされています。
+**このガイドの部分は、明示的配置レベルIRONで説明されています。**
 
-## タイルタイプとDMA初期化
-
-AIEアーキテクチャには3つのタイルタイプがあります：
-
-### 1. コンピュートタイル（Compute tiles）
-
-**宣言:** `tile(col, row)`
-**初期化:** `@mem(tile)`
-
-**特徴:**
-- 2つの入力ポート
-- 2つの出力ポート
-- L1メモリ付き
-
-### 2. メモリタイル（Memory tiles）
-
-**宣言:** `tile(col, row)` （通常は行1）
-**初期化:** `@memtile_dma(tile)`
-
-**特徴:**
-- 6つの入力ポート
-- 6つの出力ポート
-- 大容量L2メモリ
-
-### 3. シムタイル（Shim tiles）
-
-**宣言:** `tile(col, row)` （通常は行0）
-**初期化:** `@shim_dma(tile)`
-
-**特徴:**
-- 2つの入力ポート
-- 2つの出力ポート
-- 外部メモリへのアクセス
-
-> **注意:** すべてのタイルタイプは同じ基本DMA設計を使用します。
-
-## DMAチャネルの設定
-
-### チャネル方向の分類
-
-チャネルは方向によって分類されます：
-
-- **S2MM（Slave-to-Memory Mapped）**: 入力チャネル（ストリームからメモリへ）
-- **MM2S（Memory Mapped-to-Slave）**: 出力チャネル（メモリからストリームへ）
-
-### 統一された`dma`コンストラクタ
+AIEアーキテクチャには現在3つの異なるタイプのタイルがあります：「tile」と呼ばれるコンピュートタイル、「Mem tiles」と呼ばれるメモリタイル、「Shim tiles」と呼ばれる外部メモリインターフェイスタイルです。これらのタイルはそれぞれ、演算能力とメモリ容量に関して独自の属性を持っていますが、DMAの基本設計は同じです。異なるタイプのDMAは、[aie.py](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/python/dialects/aie.py)のコンストラクタを使用して初期化できます：
 
 ```python
-dma(
-    channel_dir,        # S2MM または MM2S
-    channel_index,      # チャネル番号
-    num_blocks=1,       # バッファディスクリプタ数
-    loop=None,          # ループ設定
-    repeat_count=None,  # 繰り返し回数
-    sym_name=None,      # シンボル名
-    loc=None,           # 位置
-    ip=None             # IPアドレス
+@mem(tile) # コンピュートタイルのDMA
+@shim_dma(tile) # ShimタイルのDMA
+@memtile_dma(tile) # MemタイルのDMA
+```
+
+DMAハードウェアコンポーネントには、一定数の入力および出力`channels`（チャネル）があり、それぞれに方向とポートインデックスがあります。入力チャネルはキーワード`S2MM`で示され、出力チャネルは`MM2S`で示されます。ポートインデックスはタイルごとに異なります。たとえば、コンピュートタイルとShimタイルには2つの入力ポートと2つの出力ポートがありますが、Memタイルには6つの入力ポートと6つの出力ポートがあります。
+
+任意のタイルのDMAのチャネルは、統一された`dma`コンストラクタを使用して初期化できます：
+
+```python
+def dma(
+    channel_dir,
+    channel_index,
+    *,
+    num_blocks=1,
+    loop=None,
+    repeat_count=None,
+    sym_name=None,
+    loc=None,
+    ip=None,
 )
 ```
 
-## バッファディスクリプタ（BDs）
+各チャネルでのデータ移動は、バッファディスクリプタ（または「BD」）のチェーンによって記述されます。各BDは、移動されるデータを記述し、その同期メカニズムを設定します。`dma`コンストラクタは、`num_blocks=1`というデフォルト値の入力で見られるように、すでにそのようなBDのためのスペースを1つ作成します。
 
-### 基本概念
-
-データ移動は、**バッファディスクリプタのチェーン**を通じて記述されます。各BDは以下を指定します：
-
-- 移動するデータ
-- 同期の設定
-- アドレスパターン
-
-### BDの追加
-
-追加のBDは、`@another_bd(dma_bd)`デコレータを使用して追加されます。
+以下のコードスニペットは、`tile_a`のDMAを設定して、入力チャネル0に入ってくるデータを`buff_in`に書き込む方法を示しています：
 
 ```python
-@dma(S2MM, channel_index=0)
-def dma_handler():
-    # 最初のBD
-    buffer_descriptor(buffer1, ...)
+tile_a = tile(1, 3)
 
-    @another_bd(dma_handler)
-    def second_bd():
-        # 2番目のBD
-        buffer_descriptor(buffer2, ...)
+prod_lock = lock(tile_a, lock_id=0, init=1)
+cons_lock = lock(tile_a, lock_id=1, init=0)
+buff_in = buffer(tile=tile_a, datatype=np.ndarray[(256,), np.dtype[np.int32]]) # 256xi32
+
+@mem(tile_a)
+def mem_body():
+    @dma(S2MM, 0) # 入力チャネル、ポート0
+    def dma_in_0():
+        use_lock(prod_lock, AcquireGreaterEqual)
+        dma_bd(buff_in)
+        use_lock(cons_lock, Release)
 ```
 
-## ロックによる同期
+ロック`prod_lock`と`cons_lock`は、AIE-MLアーキテクチャのセマンティクスに従います。それらのタスクは、タイルとそのDMAの実行における同期ポイントをマークすることです。たとえば、タイルが現在`buff_in`を使用している場合、それが完了したときのみ`prod_lock`を解放し、その時にDMAが`buff_in`の新しい入力でデータを上書きすることが許可されます。同様に、タイルのコアは`cons_lock`を照会して、新しいデータが読み取り可能になったこと（つまり、DMAがロックを解放してコアが取得できるようになったとき）を知ることができます。
 
-### ロックの役割
-
-ドキュメントでは以下のように説明されています：「タイルが現在`buff_in`を使用している場合、それが完了したときのみ`prod_lock`を解放し、その時にDMAがデータを上書きすることが許可されます。」
-
-### ロックの使用パターン
-
-ロックは、タイル実行とDMA操作間の同期ポイントをマークし、プロデューサ-コンシューマパターンを可能にします。
+前のコードでは、チャネルにはチェーン内に1つのBDしかありませんでした。チェーンに追加のBDを追加するには、ユーザーは以下のコンストラクタを使用できます。このコンストラクタは、追加されるチェーン内の前のBDを入力として受け取ります：
 
 ```python
-# プロデューサ側
-use_lock(prod_lock, AcquireGreaterEqual, value=0)  # 空きバッファを待つ
-# データ書き込み
-use_lock(prod_lock, Release, value=1)              # データ準備完了を通知
-
-# コンシューマ側
-use_lock(cons_lock, AcquireGreaterEqual, value=1)  # データ準備を待つ
-# データ読み取り
-use_lock(cons_lock, Release, value=0)              # バッファ解放を通知
+@another_bd(dma_bd)
 ```
 
-## ダブルバッファリングパターン
-
-### ピンポンバッファリング
-
-`num_blocks=2`と増加したロックトークン数を使用して、交互のバッファ使用パターンを作成します。
+次のコードスニペットは、前のコンストラクタを使用して、前の入力チャネルをダブル（またはピンポン）バッファで拡張する方法を示しています：
 
 ```python
-@dma(S2MM, channel_index=0, num_blocks=2)
-def double_buffer_dma():
-    # バッファ1用のBD
-    use_lock(lock, AcquireGreaterEqual, value=0)
-    buffer_descriptor(buffer1, ...)
-    use_lock(lock, Release, value=2)  # トークン数を2に
+tile_a = tile(1, 3)
 
-    # バッファ2用のBD
-    @another_bd(double_buffer_dma)
-    def bd2():
-        use_lock(lock, AcquireGreaterEqual, value=0)
-        buffer_descriptor(buffer2, ...)
-        use_lock(lock, Release, value=2)
+prod_lock = lock(tile_a, lock_id=0, init=2) # プロデューサロックが2つのトークンを持つことに注意
+cons_lock = lock(tile_a, lock_id=1, init=0)
+buff_ping = buffer(tile=tile_a, datatype=np.ndarray[(256,), np.dtype[np.int32]]) # 256xi32
+buff_pong = buffer(tile=tile_a, datatype=np.ndarray[(256,), np.dtype[np.int32]]) # 256xi32
+
+@mem(tile_a)
+def mem_body():
+    @dma(S2MM, 0, num_blocks=2) # 追加のBDに注意
+    def dma_in_0():
+        use_lock(prod_lock, AcquireGreaterEqual)
+        dma_bd(buff_ping)
+        use_lock(cons_lock, Release)
+
+    @another_bd(dma_in_0)
+    def dma_in_1():
+        use_lock(prod_lock, AcquireGreaterEqual)
+        dma_bd(buff_pong)
+        use_lock(cons_lock, Release)
 ```
 
-**動作:**
-1. バッファ1に書き込み中、バッファ2を読み取り可能
-2. バッファ2に書き込み中、バッファ1を読み取り可能
-3. 並行性の向上
+> **注意:** このDMA設定は、ダブルバッファのObject FIFO低レベル化の形式と同等です。
 
-## タイル間のデータフロー
+上記のコードは、次の図のように視覚化できます。ここで、2つのBDが相互にピンポンします：
 
-### `flow`コンストラクタ
+<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/programming_guide/assets/DMA_BDs.png" height=300 width="400">
 
-異なるタイル上のDMAチャネル間の接続を確立します。
+データ移動を設定する最後のステップは、Object FIFOがプロデューサタイルとコンシューマタイルを持つのと同様に、そのエンドポイントを確立することです。これを行うには、ユーザーは`flow`コンストラクタを使用する必要があります：
 
 ```python
-flow(
-    source_tile,           # ソースタイル
-    WireBundle.DMA,        # バンドル指定
-    source_channel,        # ソースチャネルインデックス
-    dest_tile,             # 宛先タイル
-    WireBundle.DMA,        # バンドル指定
-    dest_channel           # 宛先チャネルインデックス
+def flow(
+    source,
+    source_bundle=None,
+    source_channel=None,
+    dest=None,
+    dest_bundle=None,
+    dest_channel=None,
 )
 ```
 
-**注意:** 「フロー低レベル化は、`source`と`dest`入力に基づいて方向を推論できます。」
+`flow`は、2つのDMAのチャネル間で確立されます（他のエンドポイントも利用可能ですが、このセクションの範囲を超えています）。そのため、以下が必要です：
+* `source`と`dest`タイル
+* `source_bundle`と`dest_bundle`（エンドポイントのタイプを表し、我々の範囲では`WireBundle.DMA`になります）
+* `source_channel`と`dest_channel`（チャネルのインデックスを表します）
 
-## 完全な2タイル例
-
-### シナリオ
-
-1つのタイルがMM2S（出力チャネル0）を介してデータを送信し、別のタイルのS2MM（入力チャネル1）に送ります。
-
-### プロデューサタイル
+たとえば、タイル`tile_a`とタイル`tile_b`の間にフローを作成し、`tile_a`がその出力チャネル0で`tile_b`の入力チャネル1にデータを送信する場合、ユーザーは以下のように記述できます：
 
 ```python
-@mem(producer_tile)
-def producer_mem():
-    @dma(MM2S, channel_index=0)
-    def send_dma():
-        use_lock(send_lock, AcquireGreaterEqual, value=1)
-        buffer_descriptor(send_buffer, length=data_size)
-        use_lock(send_lock, Release, value=0)
+aie.flow(tile_a, WireBundle.DMA, 0, tile_b, WireBundle.DMA, 1)
 ```
 
-### コンシューマタイル
+2つのチャネルの方向はフローで必要とされず、インデックスのみであることに注意してください。これは、フローの低レベル化が`source`と`dest`入力に基づいて方向を推論できるためです。
+
+次のコードスニペットは、`tile_a`が`tile_b`にデータを送信する2つのタイルの完全な例を示しています：
 
 ```python
-@mem(consumer_tile)
-def consumer_mem():
-    @dma(S2MM, channel_index=1)
-    def receive_dma():
-        use_lock(recv_lock, AcquireGreaterEqual, value=0)
-        buffer_descriptor(recv_buffer, length=data_size)
-        use_lock(recv_lock, Release, value=1)
+tile_a = tile(1, 2)
+tile_b = tile(1, 3)
+
+prod_lock_a = lock(tile_a, lock_id=0, init=1)
+cons_lock_a = lock(tile_a, lock_id=1, init=0)
+buff_a = buffer(tile=tile_a, np.ndarray[(256,), np.dtype[np.int32]]) # 256xi32
+
+prod_lock_b = lock(tile_b, lock_id=0, init=1)
+cons_lock_b = lock(tile_b, lock_id=1, init=0)
+buff_b = buffer(tile=tile_b, np.ndarray[(256,), np.dtype[np.int32]]) # 256xi32
+
+aie.flow(tile_a, WireBundle.DMA, 0, tile_b, WireBundle.DMA, 1)
+
+@mem(tile_a)
+def mem_body():
+    @dma(MM2S, 0) # 出力チャネル、ポート0
+    def dma_in_0():
+        use_lock(cons_lock_a, AcquireGreaterEqual)
+        dma_bd(buff_a)
+        use_lock(prod_lock_a, Release)
+
+@mem(tile_b)
+def mem_body():
+    @dma(S2MM, 1) # 入力チャネル、ポート1
+    def dma_in_0():
+        use_lock(prod_lock_b, AcquireGreaterEqual)
+        dma_bd(buff_b)
+        use_lock(cons_lock_b, Release)
 ```
-
-### 接続
-
-```python
-flow(
-    producer_tile, WireBundle.DMA, 0,  # ソース: MM2S チャネル0
-    consumer_tile, WireBundle.DMA, 1   # 宛先: S2MM チャネル1
-)
-```
-
-## Object FIFOとの比較
-
-### Object FIFOを使用する場合
-
-- 標準的なデータフローパターン
-- 高レベル抽象化が望ましい
-- 迅速な開発
-
-### 低レベルDMAを使用する場合
-
-- Object FIFOで表現できないパターン
-- 細かい制御が必要
-- カスタムDMA設定
-- 性能の最大限の最適化
-
-## 高度なDMA機能
-
-### n次元転送
-
-バッファディスクリプタは、n次元アドレスパターンをサポート：
-
-```python
-buffer_descriptor(
-    buffer,
-    offset=0,
-    dimensions=[[size_2, stride_2], [size_1, stride_1], [size_0, stride_0]]
-)
-```
-
-### パケット化
-
-パケットベースのルーティングにより、柔軟なデータフロー：
-
-```python
-use_packet(packet_id, packet_type)
-```
-
-## デバッグのヒント
-
-### 一般的な問題
-
-1. **デッドロック**: ロックの取得/解放の不一致
-2. **データ破損**: 不適切な同期
-3. **性能の問題**: 非効率的なバッファリング
-
-### デバッグ戦略
-
-- ロックの状態を追跡
-- DMAチャネルのステータスを確認
-- トレース機能を使用
-- 段階的にテスト
 
 ---
 
-**注意**: この高度なトピックの完全な実装例と詳細については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2g)を参照してください。
+**注意**: より詳細な情報については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2g)を参照してください。

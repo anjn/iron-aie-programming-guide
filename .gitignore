@@ -1,0 +1,38 @@
+# mdBook output
+book/
+*.book
+
+# Build artifacts
+*.o
+*.a
+*.so
+*.dylib
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+.cache/
+
+# Node modules (if using any JS tools)
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# OS files
+Thumbs.db
+.Spotlight-V100
+.Trashes

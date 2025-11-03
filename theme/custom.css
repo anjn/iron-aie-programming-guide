@@ -1,0 +1,91 @@
+/* カスタムスタイル for IRON AIE Programming Guide 日本語版 */
+
+/* 日本語フォントの最適化 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    line-height: 1.8;
+}
+
+/* コードブロックのフォント */
+code, pre {
+    font-family: "Consolas", "Monaco", "Courier New", monospace;
+}
+
+/* 見出しのスタイル調整 */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+/* リンクのスタイル */
+a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* 注意書きボックス */
+.warning, .note, .info {
+    padding: 1em;
+    margin: 1em 0;
+    border-left: 4px solid;
+    border-radius: 4px;
+}
+
+.warning {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
+.note {
+    background-color: #d1ecf1;
+    border-color: #17a2b8;
+}
+
+.info {
+    background-color: #e7f3ff;
+    border-color: #0366d6;
+}
+
+/* コードブロックの改善 */
+pre {
+    padding: 1em;
+    overflow-x: auto;
+    border-radius: 4px;
+}
+
+/* テーブルのスタイル */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 0.5em;
+    text-align: left;
+}
+
+th {
+    background-color: #f6f8fa;
+    font-weight: 600;
+}
+
+/* ページ内容の最大幅調整 */
+.content {
+    max-width: 900px;
+}
+
+/* 翻訳作業中の注意書き */
+.translation-notice {
+    background-color: #fff9e6;
+    border: 1px solid #ffd93d;
+    border-radius: 4px;
+    padding: 1em;
+    margin: 1em 0;
+}

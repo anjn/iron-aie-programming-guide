@@ -1,0 +1,28 @@
+[book]
+authors = ["Jun Ando"]
+language = "ja"
+multilingual = false
+src = "src"
+title = "IRON AIEプログラミングガイド（非公式日本語訳）"
+description = "Xilinx/AMD mlir-aie IRON AIE Programming Guideの非公式日本語翻訳"
+
+[build]
+build-dir = "book"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/Xilinx/mlir-aie"
+git-repository-icon = "fa-github"
+additional-css = ["theme/custom.css"]
+
+[output.html.fold]
+enable = true
+level = 0
+
+[output.html.search]
+enable = true
+limit-results = 30
+use-boolean-and = true
+
+[preprocessor.links]

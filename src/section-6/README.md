@@ -64,7 +64,3 @@ Bottleneck設計の理解をテストする3つの技術演習：
 ---
 
 **注意**: 各設計例の完全なソースコードと詳細な実装については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-6)を参照してください。
-
------
-
-[[前へ - Section 5](../section-5/README.md)] [[トップ](../README.md)]

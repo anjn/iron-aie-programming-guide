@@ -15,6 +15,7 @@ preferred-dark-theme = "navy"
 git-repository-url = "https://github.com/Xilinx/mlir-aie"
 git-repository-icon = "fa-github"
 additional-css = ["theme/custom.css"]
+no-section-label = true
 
 [output.html.fold]
 enable = true

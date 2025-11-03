@@ -59,7 +59,3 @@ AI Engineのベクトル処理ユニットは、並列データ処理のため�
 ---
 
 **注意**: 各サブセクションの詳細な翻訳は進行中です。完全なコード例と詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-4)を参照してください。
-
------
-
-[[前へ - Section 3](../section-3/README.md)] [[トップ](../README.md)] [[次へ - Section 5](../section-5/README.md)]

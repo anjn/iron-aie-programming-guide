@@ -217,7 +217,3 @@ make placed
 ---
 
 **注意**: より詳細な情報と完全なコード例については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2e)を参照してください。
-
------
-
-[[前へ - Section 2d](../section-2d/README.md)] [[次へ - Section 2f](../section-2f/README.md)] [[トップ](../../README.md)]

@@ -20,10 +20,6 @@
 
 ### [Linux上でIRONとMLIR-AIEをソースからビルド](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/docs/Building.md)
 
------
-
-[[トップ](../README.md)] [[次へ - Section 1](../section-1/README.md)]
-
 ---
 
 **注意**: このページは[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-0)の非公式日本語訳です。

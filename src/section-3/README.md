@@ -89,7 +89,3 @@ make run_py
 ---
 
 **注意**: より詳細な情報と完全なコード例については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-3)を参照してください。
-
------
-
-[[前へ - Section 2](../section-2/README.md)] [[トップ](../README.md)] [[次へ - Section 4](../section-4/README.md)]

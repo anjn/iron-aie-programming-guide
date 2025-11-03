@@ -360,7 +360,3 @@ void optimized_kernel(
 ---
 
 **注意**: より詳細な情報、完全なコード例、および高度な最適化技術については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-4/section-4c)を参照してください。
-
------
-
-[[前へ - Section 4b](../section-4b/README.md)] [[トップ](../../README.md)]

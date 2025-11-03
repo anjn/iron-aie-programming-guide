@@ -157,7 +157,3 @@ dma_wait(of_in, of_out)  # 複数のObject FIFOを待機
 ---
 
 **注意**: より詳細な情報とAPI リファレンスについては、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2d)を参照してください。
-
------
-
-[[前へ - Section 2c](../section-2c/README.md)] [[次へ - Section 2e](../section-2e/README.md)] [[トップ](../../README.md)]

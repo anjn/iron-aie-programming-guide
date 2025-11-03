@@ -39,7 +39,3 @@ Object FIFOは、AIE配列内の異なるタイル間でデータを移動する
 ---
 
 **注意**: 各サブセクションの詳細な翻訳は進行中です。最新の情報は[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2)を参照してください。
-
------
-
-[[前へ - Section 1](../section-1/README.md)] [[トップ](../README.md)] [[次へ - Section 3](../section-3/README.md)]

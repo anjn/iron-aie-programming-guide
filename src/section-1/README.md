@@ -183,10 +183,6 @@ with mlir_mod_ctx() as ctx:
     ```
     この変更を行い、再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="最小値が0であるため、'column value fails to satisfy the constraint'と表示されるようになります。" height=25>
 
------
-
-[[前へ - Section 0](../section-0/README.md)] [[トップ](../README.md)] [[次へ - Section 2](../section-2/README.md)]
-
 ---
 
 **注意**: このページは[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-1)の非公式日本語訳です。

@@ -328,7 +328,3 @@ void init_buffer(data_t* buffer, size_t size) {
 ---
 
 **注意**: より詳細な情報と完全なコード例については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-4/section-4b)を参照してください。
-
------
-
-[[前へ - Section 4a](../section-4a/README.md)] [[次へ - Section 4c](../section-4c/README.md)] [[トップ](../../README.md)]

@@ -159,17 +159,17 @@ with mlir_mod_ctx() as ctx:
 
 1. コマンドラインからPythonプログラムを実行するには、`python3 aie2.py`と入力します。これにより、Python構造設計がMLIRソースコードに変換されます。設計環境にmlir-aie Pythonバインドダイアレクトモジュールが既に含まれている場合、コマンドラインから機能します。これを[Makefile](https://github.com/Xilinx/mlir-aie/blob/main/programming_guide/section-1/Makefile)に含めたので、今すぐ`make`を実行してください。次に、`build/aie.mlir`で生成されたMLIRソースを確認します。
 
-2. `make clean`を実行して生成されたファイルを削除します。Workerのコード（`core_fn`）で`range_`を`range`（アンダースコアなし）に置き換えます。何が起こると予想しますか？`build/aie.mlir`の生成されたコードを調査し、生成されたコードがどのように変更されたかを観察してください。<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/main/mlir_tutorials/images/answer1.jpg" title="生成されたMLIRコードにはループが含まれず、代わりに同じ命令が何度も繰り返されます。" height=25>
+2. `make clean`を実行して生成されたファイルを削除します。Workerのコード（`core_fn`）で`range_`を`range`（アンダースコアなし）に置き換えます。何が起こると予想しますか？`build/aie.mlir`の生成されたコードを調査し、生成されたコードがどのように変更されたかを観察してください。<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="生成されたMLIRコードにはループが含まれず、代わりに同じ命令が何度も繰り返されます。" height=25>
 
-3. 再び`make clean`を実行します。次に、`sequence`を`sequenc`にスペルミスするなど、Pythonソースにエラーを導入し、再び`make`を実行します。どのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/main/mlir_tutorials/images/answer1.jpg" title="sequencが認識されないため、Pythonエラーがあります。" height=25>
+3. 再び`make clean`を実行します。次に、`sequence`を`sequenc`にスペルミスするなど、Pythonソースにエラーを導入し、再び`make`を実行します。どのようなメッセージが表示されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="sequencが認識されないため、Pythonエラーがあります。" height=25>
 
-4. 再び`make clean`を実行します。次に、`sequenc`を`sequence`に戻してエラーを変更しますが、Workerを座標(-1, 3)のタイルに配置します。これは無効な場所です。再び`make`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/main/mlir_tutorials/images/answer1.jpg" title="部分配置エラーがあります。" height=25>
+4. 再び`make clean`を実行します。次に、`sequenc`を`sequence`に戻してエラーを変更しますが、Workerを座標(-1, 3)のタイルに配置します。これは無効な場所です。再び`make`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="部分配置エラーがあります。" height=25>
 
-5. 再び`make clean`を実行します。Workerタイルを元の座標に戻します。Workerから`while_true=False`属性を削除し、再び`make`を実行します。何が観察されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/main/mlir_tutorials/images/answer1.jpg" title="Workerタスクコードがforループ内にネストされています。" height=25>
+5. 再び`make clean`を実行します。Workerタイルを元の座標に戻します。Workerから`while_true=False`属性を削除し、再び`make`を実行します。何が観察されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="Workerタスクコードがforループ内にネストされています。" height=25>
 
 6. 次に、配置されたバージョンのコードを見てみましょう。`make placed`を実行し、`build/aie_placed.mlir`で生成されたMLIRソースを確認します。
 
-7. `make clean`を実行して生成されたファイルを削除します。`ComputeTile1`の座標を(-1,3)に変更して、上記と同じエラーを導入します。再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/main/mlir_tutorials/images/answer1.jpg" title="エラーは生成されません。" height=25>
+7. `make clean`を実行して生成されたファイルを削除します。`ComputeTile1`の座標を(-1,3)に変更して、上記と同じエラーを導入します。再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="エラーは生成されません。" height=25>
 
 8. エラーは生成されませんが、コードは無効です。`build/aie_placed.mlir`で生成されたMLIRコードを確認してください。この生成された出力は無効なMLIR構文であり、このMLIRソースでmlir-aieツールを実行するとエラーが生成されます。ただし、関数`ctx.module.operation.verify()`を使用すると有効化できる追加のPython構造構文チェックがあります。これは、Pythonバインドコードがmlir-aieコンテキスト内で有効な操作を持っているかどうかを検証します。
 
@@ -181,7 +181,7 @@ with mlir_mod_ctx() as ctx:
     else:
         print(res)
     ```
-    この変更を行い、再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/main/mlir_tutorials/images/answer1.jpg" title="最小値が0であるため、'column value fails to satisfy the constraint'と表示されるようになります。" height=25>
+    この変更を行い、再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="最小値が0であるため、'column value fails to satisfy the constraint'と表示されるようになります。" height=25>
 
 -----
 

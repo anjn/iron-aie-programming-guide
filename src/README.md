@@ -77,6 +77,6 @@ IRONは、ユーザーの経験レベルに合わせてAIE配列のプログラ�
 
 ---
 
-**注意**: これは[公式プログラミングガイド](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide)の非公式日本語訳です。正確な情報については、常に公式の英語版ドキュメントを参照してください。
+**注意**: これは[公式プログラミングガイド](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide)の非公式日本語訳です。正確な情報については、常に公式の英語版ドキュメントを参照してください。
 
 **ライセンス**: 元のドキュメントは Apache License v2.0 with LLVM Exceptions の下でライセンスされています。

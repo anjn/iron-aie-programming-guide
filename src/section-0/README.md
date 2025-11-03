@@ -16,9 +16,9 @@
 
 #### **クイックセットアップの手順に必ず従ってください。**
 
-### [Linux上でAMD Ryzen™ AIを使い始める](https://github.com/Xilinx/mlir-aie/blob/main/README.md)（推奨）
+### [Linux上でAMD Ryzen™ AIを使い始める](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/README.md)（推奨）
 
-### [Linux上でIRONとMLIR-AIEをソースからビルド](https://github.com/Xilinx/mlir-aie/blob/main/docs/Building.md)
+### [Linux上でIRONとMLIR-AIEをソースからビルド](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/docs/Building.md)
 
 -----
 
@@ -26,4 +26,4 @@
 
 ---
 
-**注意**: このページは[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-0)の非公式日本語訳です。
+**注意**: このページは[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-0)の非公式日本語訳です。

@@ -127,11 +127,11 @@ Object FIFO Link機能を使用して、プロデューサデータを複数回�
 
 各パターンには、リンクされた実践的なコード例が用意されています。これらの例を参照することで、パターンの具体的な実装方法を理解できます。
 
-詳細な実装例については、[公式のSection 2bドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2b)を参照してください。
+詳細な実装例については、[公式のSection 2bドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b)を参照してください。
 
 ---
 
-**注意**: 各パターンの完全なコード例と詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2b)を参照してください。
+**注意**: 各パターンの完全なコード例と詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b)を参照してください。
 
 -----
 

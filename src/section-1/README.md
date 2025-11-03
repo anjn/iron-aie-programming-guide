@@ -4,7 +4,7 @@ AIE配列をプログラミングする際、その構造的な構成要素を�
 
 ## Pythonソースファイル（aie2.py）のウォークスルー
 
-まず、IRON設計の最も高い抽象化レベルでの基本的なPythonソースファイル（[aie2.py](https://github.com/Xilinx/mlir-aie/blob/main/programming_guide/section-1/aie2.py)という名前）を見てみましょう：
+まず、IRON設計の最も高い抽象化レベルでの基本的なPythonソースファイル（[aie2.py](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_guide/section-1/aie2.py)という名前）を見てみましょう：
 
 このPythonソースの先頭で、IRONライブラリを定義するモジュールをインポートします：高レベル抽象化構造のための`aie.iron`、リソース配置アルゴリズムのための`aie.iron.placers`、ターゲットアーキテクチャのための`aie.iron.device`です。
 
@@ -21,7 +21,7 @@ AIE配列内部のデータ移動も通常この段階で宣言されますが�
 # ガイドの今後のセクションで説明...
 ```
 
-AIE配列では、計算カーネルはコンピュートタイル上で実行され、これは**Worker**で表されます。Workerは実行するルーチンと、それを実行するために必要な引数のリストを入力として受け取ります。Workerクラスは以下に定義されており、[worker.py](https://github.com/Xilinx/mlir-aie/blob/main/python/iron/worker.py)で見つけることができます。Workerは、AIE配列内の`placement`タイルに明示的に配置することも、このセクションでさらに説明するように、配置をコンパイラに任せることもできます。最後に、`while_true`入力はデフォルトでTrueに設定されています。これは、Workerが設計開始後に通常継続的に実行されるためです。
+AIE配列では、計算カーネルはコンピュートタイル上で実行され、これは**Worker**で表されます。Workerは実行するルーチンと、それを実行するために必要な引数のリストを入力として受け取ります。Workerクラスは以下に定義されており、[worker.py](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/python/iron/worker.py)で見つけることができます。Workerは、AIE配列内の`placement`タイルに明示的に配置することも、このセクションでさらに説明するように、配置をコンパイラに任せることもできます。最後に、`while_true`入力はデフォルトでTrueに設定されています。これは、Workerが設計開始後に通常継続的に実行されるためです。
 
 ```python
 class Worker(ObjectFifoEndpoint):
@@ -63,7 +63,7 @@ with rt.sequence(data_ty, data_ty, data_ty) as (_, _, _):
     rt.start(my_worker)
 ```
 
-すべてのコンポーネントは、デバイス上で設計を実行するために必要なすべての設計情報を表す`Program`にまとめられます。また、この段階で、以前に配置されていないWorkerが`Placer`を使用してAIEタイルにマッピングされます。現在、IRONで利用可能な配置アルゴリズムは1つだけで、以下のコードスニペットに見られる`SequentialPlacer()`です。他のplacerは最小限の労力で追加でき、[placers.py](https://github.com/Xilinx/mlir-aie/blob/main/python/iron/placers.py)にあるこれらのツールを試すことをすべてのユーザーに推奨します。最後に、プログラムが印刷され、IRONライブラリとPython言語バインディングから対応するMLIR定義が生成されます。
+すべてのコンポーネントは、デバイス上で設計を実行するために必要なすべての設計情報を表す`Program`にまとめられます。また、この段階で、以前に配置されていないWorkerが`Placer`を使用してAIEタイルにマッピングされます。現在、IRONで利用可能な配置アルゴリズムは1つだけで、以下のコードスニペットに見られる`SequentialPlacer()`です。他のplacerは最小限の労力で追加でき、[placers.py](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/python/iron/placers.py)にあるこれらのツールを試すことをすべてのユーザーに推奨します。最後に、プログラムが印刷され、IRONライブラリとPython言語バインディングから対応するMLIR定義が生成されます。
 
 ```python
 # デバイスタイプとランタイムからプログラムを作成
@@ -80,7 +80,7 @@ print(module)
 
 ## Pythonソースファイル（aie2_placed.py）のウォークスルー
 
-IRONは、コンポーネントが座標を使用してAIEタイルに明示的に配置されるタイルレベルの粒度で設計を記述することもできます。このレベルでのIRON設計の基本的なPythonソースファイル（[aie2_placed.py](https://github.com/Xilinx/mlir-aie/blob/main/programming_guide/section-1/aie2_placed.py)という名前）を再度見てみましょう。
+IRONは、コンポーネントが座標を使用してAIEタイルに明示的に配置されるタイルレベルの粒度で設計を記述することもできます。このレベルでのIRON設計の基本的なPythonソースファイル（[aie2_placed.py](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_guide/section-1/aie2_placed.py)という名前）を再度見てみましょう。
 
 このPythonソースの先頭で、IRON AIEライブラリ`aie.dialects.aie`とmlir-aieコンテキスト`aie.extras.context`を定義するモジュールをインポートします。これらはAI EnginesのMLIR定義にバインドされます。
 
@@ -157,19 +157,19 @@ with mlir_mod_ctx() as ctx:
 
 ## 演習
 
-1. コマンドラインからPythonプログラムを実行するには、`python3 aie2.py`と入力します。これにより、Python構造設計がMLIRソースコードに変換されます。設計環境にmlir-aie Pythonバインドダイアレクトモジュールが既に含まれている場合、コマンドラインから機能します。これを[Makefile](https://github.com/Xilinx/mlir-aie/blob/main/programming_guide/section-1/Makefile)に含めたので、今すぐ`make`を実行してください。次に、`build/aie.mlir`で生成されたMLIRソースを確認します。
+1. コマンドラインからPythonプログラムを実行するには、`python3 aie2.py`と入力します。これにより、Python構造設計がMLIRソースコードに変換されます。設計環境にmlir-aie Pythonバインドダイアレクトモジュールが既に含まれている場合、コマンドラインから機能します。これを[Makefile](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_guide/section-1/Makefile)に含めたので、今すぐ`make`を実行してください。次に、`build/aie.mlir`で生成されたMLIRソースを確認します。
 
-2. `make clean`を実行して生成されたファイルを削除します。Workerのコード（`core_fn`）で`range_`を`range`（アンダースコアなし）に置き換えます。何が起こると予想しますか？`build/aie.mlir`の生成されたコードを調査し、生成されたコードがどのように変更されたかを観察してください。<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="生成されたMLIRコードにはループが含まれず、代わりに同じ命令が何度も繰り返されます。" height=25>
+2. `make clean`を実行して生成されたファイルを削除します。Workerのコード（`core_fn`）で`range_`を`range`（アンダースコアなし）に置き換えます。何が起こると予想しますか？`build/aie.mlir`の生成されたコードを調査し、生成されたコードがどのように変更されたかを観察してください。<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="生成されたMLIRコードにはループが含まれず、代わりに同じ命令が何度も繰り返されます。" height=25>
 
-3. 再び`make clean`を実行します。次に、`sequence`を`sequenc`にスペルミスするなど、Pythonソースにエラーを導入し、再び`make`を実行します。どのようなメッセージが表示されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="sequencが認識されないため、Pythonエラーがあります。" height=25>
+3. 再び`make clean`を実行します。次に、`sequence`を`sequenc`にスペルミスするなど、Pythonソースにエラーを導入し、再び`make`を実行します。どのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="sequencが認識されないため、Pythonエラーがあります。" height=25>
 
-4. 再び`make clean`を実行します。次に、`sequenc`を`sequence`に戻してエラーを変更しますが、Workerを座標(-1, 3)のタイルに配置します。これは無効な場所です。再び`make`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="部分配置エラーがあります。" height=25>
+4. 再び`make clean`を実行します。次に、`sequenc`を`sequence`に戻してエラーを変更しますが、Workerを座標(-1, 3)のタイルに配置します。これは無効な場所です。再び`make`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="部分配置エラーがあります。" height=25>
 
-5. 再び`make clean`を実行します。Workerタイルを元の座標に戻します。Workerから`while_true=False`属性を削除し、再び`make`を実行します。何が観察されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="Workerタスクコードがforループ内にネストされています。" height=25>
+5. 再び`make clean`を実行します。Workerタイルを元の座標に戻します。Workerから`while_true=False`属性を削除し、再び`make`を実行します。何が観察されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="Workerタスクコードがforループ内にネストされています。" height=25>
 
 6. 次に、配置されたバージョンのコードを見てみましょう。`make placed`を実行し、`build/aie_placed.mlir`で生成されたMLIRソースを確認します。
 
-7. `make clean`を実行して生成されたファイルを削除します。`ComputeTile1`の座標を(-1,3)に変更して、上記と同じエラーを導入します。再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="エラーは生成されません。" height=25>
+7. `make clean`を実行して生成されたファイルを削除します。`ComputeTile1`の座標を(-1,3)に変更して、上記と同じエラーを導入します。再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="エラーは生成されません。" height=25>
 
 8. エラーは生成されませんが、コードは無効です。`build/aie_placed.mlir`で生成されたMLIRコードを確認してください。この生成された出力は無効なMLIR構文であり、このMLIRソースでmlir-aieツールを実行するとエラーが生成されます。ただし、関数`ctx.module.operation.verify()`を使用すると有効化できる追加のPython構造構文チェックがあります。これは、Pythonバインドコードがmlir-aieコンテキスト内で有効な操作を持っているかどうかを検証します。
 
@@ -181,7 +181,7 @@ with mlir_mod_ctx() as ctx:
     else:
         print(res)
     ```
-    この変更を行い、再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://github.com/Xilinx/mlir-aie/blob/v0.1/mlir_tutorials/images/answer1.jpg" title="最小値が0であるため、'column value fails to satisfy the constraint'と表示されるようになります。" height=25>
+    この変更を行い、再び`make placed`を実行します。今度はどのようなメッセージが表示されますか？<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v0.1/mlir_tutorials/images/answer1.jpg" title="最小値が0であるため、'column value fails to satisfy the constraint'と表示されるようになります。" height=25>
 
 -----
 
@@ -189,4 +189,4 @@ with mlir_mod_ctx() as ctx:
 
 ---
 
-**注意**: このページは[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-1)の非公式日本語訳です。
+**注意**: このページは[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-1)の非公式日本語訳です。

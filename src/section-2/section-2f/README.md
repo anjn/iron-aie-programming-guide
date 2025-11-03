@@ -191,7 +191,7 @@ Core 3 → Object FIFO₃ ↗
 
 ---
 
-**注意**: 各例の完全なソースコードと詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2f)を参照してください。
+**注意**: 各例の完全なソースコードと詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2f)を参照してください。
 
 -----
 

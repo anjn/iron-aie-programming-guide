@@ -11,4 +11,4 @@
 
 ---
 
-**翻訳作業中**: このセクションの詳細な翻訳は進行中です。最新の情報は[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/mini_tutorial)を参照してください。
+**翻訳作業中**: このセクションの詳細な翻訳は進行中です。最新の情報は[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/mini_tutorial)を参照してください。

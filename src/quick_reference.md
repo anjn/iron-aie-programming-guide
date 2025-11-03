@@ -159,6 +159,6 @@ def core_body():
 
 ---
 
-**注意**: このクイックリファレンスは概要を提供します。完全な詳細については、[公式quick_reference.md](https://github.com/Xilinx/mlir-aie/blob/main/programming_guide/quick_reference.md)を参照してください。
+**注意**: このクイックリファレンスは概要を提供します。完全な詳細については、[公式quick_reference.md](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_guide/quick_reference.md)を参照してください。
 
 [[トップに戻る](./README.md)]

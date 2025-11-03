@@ -19,13 +19,13 @@
 
 資料は7つの段階的なセクションで構成されています：
 
-- **[Section 2a](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2a)**: 基礎（初期化、アクセス、同一プロデューサ/コンシューマシナリオ）
-- **[Section 2b](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2b)**: 主要パターン（再利用、ブロードキャスト、分散、結合）
-- **[Section 2c](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2c)**: データレイアウト変換
-- **[Section 2d](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2d)**: ホストメモリとの間のランタイムデータ移動
-- **[Section 2e](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2e)**: マルチコア設計の最適化
-- **[Section 2f](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2f)**: 一般的な設計パターンを含む実践的なコード例
-- **[Section 2g](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2g)**: 代替のDMAリージョンプログラミングアプローチ
+- **[Section 2a](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2a)**: 基礎（初期化、アクセス、同一プロデューサ/コンシューマシナリオ）
+- **[Section 2b](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b)**: 主要パターン（再利用、ブロードキャスト、分散、結合）
+- **[Section 2c](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2c)**: データレイアウト変換
+- **[Section 2d](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2d)**: ホストメモリとの間のランタイムデータ移動
+- **[Section 2e](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2e)**: マルチコア設計の最適化
+- **[Section 2f](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2f)**: 一般的な設計パターンを含む実践的なコード例
+- **[Section 2g](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2g)**: 代替のDMAリージョンプログラミングアプローチ
 
 ## Object FIFOとは
 
@@ -38,7 +38,7 @@ Object FIFOは、AIE配列内の異なるタイル間でデータを移動する
 
 ---
 
-**注意**: 各サブセクションの詳細な翻訳は進行中です。最新の情報は[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2)を参照してください。
+**注意**: 各サブセクションの詳細な翻訳は進行中です。最新の情報は[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2)を参照してください。
 
 -----
 

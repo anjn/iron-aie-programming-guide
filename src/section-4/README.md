@@ -9,7 +9,7 @@
 
 資料は3つのコンポーネントで構成されています：
 
-### [Section 4a - Timers](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-4/section-4a)
+### [Section 4a - Timers](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-4/section-4a)
 
 タイミングメカニズムを使用した性能分析について説明します。
 
@@ -19,7 +19,7 @@
 - オーバーヘッドの考慮
 - 性能メトリクスの計算
 
-### [Section 4b - Trace](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-4/section-4b)
+### [Section 4b - Trace](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-4/section-4b)
 
 トレース手法を通じた性能検証について説明します。
 
@@ -29,7 +29,7 @@
 - データフローの可視化
 - ボトルネックの特定
 
-### [Section 4c - Kernel vectorization and optimization](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-4/section-4c)
+### [Section 4c - Kernel vectorization and optimization](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-4/section-4c)
 
 AIEカーネルコードのベクトル化と最適化について詳しく探求します。
 
@@ -58,7 +58,7 @@ AI Engineのベクトル処理ユニットは、並列データ処理のため�
 
 ---
 
-**注意**: 各サブセクションの詳細な翻訳は進行中です。完全なコード例と詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-4)を参照してください。
+**注意**: 各サブセクションの詳細な翻訳は進行中です。完全なコード例と詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-4)を参照してください。
 
 -----
 

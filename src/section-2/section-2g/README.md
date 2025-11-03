@@ -251,7 +251,7 @@ use_packet(packet_id, packet_type)
 
 ---
 
-**注意**: この高度なトピックの完全な実装例と詳細については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-2/section-2g)を参照してください。
+**注意**: この高度なトピックの完全な実装例と詳細については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2g)を参照してください。
 
 -----
 

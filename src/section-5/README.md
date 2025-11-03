@@ -65,7 +65,7 @@
 
 ---
 
-**注意**: 各設計例の完全なソースコードと詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-5)を参照してください。
+**注意**: 各設計例の完全なソースコードと詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-5)を参照してください。
 
 -----
 

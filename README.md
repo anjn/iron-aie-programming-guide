@@ -1,6 +1,6 @@
 # IRON AIE Programming Guide（非公式日本語訳）
 
-[![Deploy mdBook to GitHub Pages](https://anjn.github.io/iron-aie-programming-guide/actions/workflows/deploy.yml/badge.svg)](https://github.com/anjn/iron-aie-programming-guide/actions/workflows/deploy.yml)
+[![Deploy mdBook to GitHub Pages](https://github.com/anjn/iron-aie-programming-guide/actions/workflows/deploy.yml/badge.svg)](https://github.com/anjn/iron-aie-programming-guide/actions/workflows/deploy.yml)
 
 [Xilinx/AMD mlir-aie](https://github.com/Xilinx/mlir-aie) プロジェクトの[Programming Guide](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide)を日本語に翻訳した非公式ガイドです。
 

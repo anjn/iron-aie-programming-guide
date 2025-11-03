@@ -1,68 +1,56 @@
-# Section 5 - Example Vector Designs
+# Section 5 - ベクトル設計の例
 
-このセクションでは、Ryzen™ AIのNPU配列内でAI Engineの機能を実証するプログラミング例を紹介します。
+[プログラミング例](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples)は、Ryzen™ AIのAI EngineとNPU配列の独自機能をさらに説明するための多数のサンプル設計です。
 
 ## 最もシンプルな例
 
-基礎的な例には、**Passthrough**と**Passthrough DMAs**が含まれます。Passthrough設計は、「ベクトル化されたロードとストアを使用して、入力から出力へ4096バイトをコピー」し、4つの必須ファイルで構成されます：Python構造設計、C++カーネル実装、テストアプリケーション、Makefile。
+#### Passthrough
+
+[passthrough](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/passthrough_kernel/)例は、最もシンプルな「入門」例です。ベクトル化されたロードとストアを使用して、入力から出力へ4096バイトをコピーします。この設計例は、他の例でも簡単に再現できる典型的なプロジェクト構成を示しています。ここで重要なファイルは実質4つだけです。
+
+1. [`passthrough_kernel.py`](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_examples/basic/passthrough_kernel/passthrough_kernel.py) - 外部メモリに接続されたシムタイルと、コピーを実行する単一のAIEコアを含むAIE構造設計。[セクション2](../section-2/index.html)で説明されているObject FIFOの簡単な使用例も示しています。
+2. [`passthrough.cc`](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/aie_kernels/generic/passThrough.cc) - ベクトル化されたコピー操作を実行するC++ファイル。
+3. [`test.cpp`](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_examples/basic/passthrough_kernel/test.cpp) または [`test.py`](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_examples/basic/passthrough_kernel/test.py) - 設計を実行し、CPUリファレンスと比較するためのC++またはPythonメインアプリケーション。
+4. [`Makefile`](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_examples/basic/passthrough_kernel/Makefile) - 様々なアーティファクトのビルドプロセスを文書化（および実装）するMakefile。
+
+[passthrough DMAs](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/passthrough_dmas/)例は、コアを使わずにループバックを実行してコピーを行う別の方法を示しています。
 
 ## 基本設計
 
-15の基礎的な例が、整数および浮動小数点演算にまたがります：
-
-### 算術演算
-- スカラー加算/ベクトル加算
-- スカラー乗算/ベクトル乗算
-- 剰余演算
-
-### リダクション関数
-- 総和（sum）
-- 最大値（max）
-- 最小値（min）
-
-### 数学演算
-- 指数関数（exponential function）
-
-### 行列演算
-- DMA転置
-- 単一コア/マルチコアGEMM（General Matrix Multiply）
-- GEMV（General Matrix-Vector multiply）
-
-使用されるデータ型：`i32`、`bfloat16`、`i8`
+| 設計名 | データ型 | 説明 |
+|-|-|-|
+| [Vector Scalar Add](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_scalar_add/) | i32 | ベクトルの各要素に1を加算 |
+| [Vector Scalar Mul](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_scalar_mul/) | i32 | ベクトルにスケールファクタを乗算 |
+| [Vector Vector Add](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_vector_add/) | i32 | 2つのベクトルを加算 |
+| [Vector Vector Modulo](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_vector_modulo/) | i32 | ベクトル同士の剰余演算 |
+| [Vector Vector Multiply](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_vector_mul/) | i32 | 2つのベクトルの要素ごとの乗算 |
+| [Vector Reduce Add](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_reduce_add/) | bfloat16 | ベクトルの全要素の合計値を返す |
+| [Vector Reduce Max](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_reduce_max/) | bfloat16 | ベクトルの全要素の最大値を返す |
+| [Vector Reduce Min](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_reduce_min/) | bfloat16 | ベクトルの全要素の最小値を返す |
+| [Vector Exp](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_exp/) | bfloat16 | 入力のe<sup>x</sup>を表すベクトルを返す |
+| [DMA Transpose](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/dma_transpose/) | i32 | `npu_dma_memcpy_nd`を使用してShim DMAで行列を転置 |
+| [Matrix Scalar Add](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/matrix_scalar_add/) | i32 | 行列とスカラーの乗算 |
+| [Single core GEMM](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/matrix_multiplication/single_core/) | bfloat16 | 単一コアの行列-行列乗算 |
+| [Multi core GEMM](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/matrix_multiplication/whole_array/) | bfloat16 | オペランドブロードキャストを使用した16個のAIEによる行列-行列乗算。シンプルな「その場で累積」戦略を使用 |
+| [GEMV](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/matrix_multiplication/matrix_vector/) | bfloat16 | ベクトルを返すベクトル-行列乗算 |
 
 ## 機械学習カーネル
 
-ニューラルネットワーク開発をサポートする6つの特化した例：
+| 設計名 | データ型 | 説明 |
+|-|-|-|
+| [Eltwise Add](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/eltwise_add/) | bfloat16 | 2つのベクトルの要素ごとの加算 |
+| [Eltwise Mul](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/eltwise_mul/) | i32 | 2つのベクトルの要素ごとの乗算 |
+| [ReLU](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/relu/) | bfloat16 | ベクトルに対する正規化線形ユニット（ReLU）活性化関数 |
+| [Softmax](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/softmax/) | bfloat16 | 行列に対するSoftmax演算 |
+| [Conv2D](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/conv2d/) | i8 | CNN用の単一コア2次元畳み込み |
+| [Conv2D+ReLU](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/conv2d_fused_relu/) | i8 | ベクトルレジスタレベルでReLUが融合されたConv2D |
 
-### 要素ごとの演算
-- 加算（add）
-- 乗算（multiply）
+## 演習問題
 
-### 活性化関数
-- ReLU
-- Softmax
+1. [passthrough](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/passthrough_kernel/)設計を変更して、より多く（または少なく）データをコピーできますか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="Check the Makefile...in1_size and out_size" height=25>
 
-### 畳み込み層
-- Conv2D（オプションでReLU融合）
+2. [Vector Exp](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/vector_exp/)例の[test.cpp](https://github.com/Xilinx/mlir-aie/blob/v1.1.1/programming_examples/basic/vector_exp/test.cpp)のテストベンチを見てください。データ型とテストベクトルのサイズに注目してください。何に気づきますか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="We are testing 65536 values or 2^16, therefore testing all possible bfloat16 values through the approximation." height=25>
 
-## 学習演習
+3. [ReLU](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/relu/)における通信対計算比は何ですか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="~6 as reported by the Trace. This is why it is a good candiate for kernel fusion with Conv2D or GEMMs for ML." height=25>
 
-より深い探求を促す4つの段階的な課題：
-
-1. **設計の修正**: 既存の設計を変更して理解を深める
-2. **データ型分析**: 異なるデータ型の影響を調査
-3. **性能メトリクス**: 通信対計算比の測定
-4. **カーネルコンポーネント識別**: より大きな演算内のカーネル要素の特定
-
-## プロジェクト構造
-
-各例は通常、以下のファイルで構成されます：
-
-- **Python構造設計**: AIE配列の設定
-- **C++カーネル実装**: 実際の計算ロジック
-- **テストアプリケーション**: ホストコードと検証
-- **Makefile**: ビルドとテストの自動化
-
----
-
-**注意**: 各設計例の完全なソースコードと詳細な説明については、[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-5)を参照してください。
+4. **難問** どの基本例が[Softmax](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/ml/softmax/)のコンポーネントになっていますか？ <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/mlir_tutorials/images/answer1.jpg" title="Vector Exp" height=25>

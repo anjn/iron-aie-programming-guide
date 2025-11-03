@@ -1,14 +1,29 @@
 # Section 0 - Getting Set Up for IRON
 
-このセクションでは、IRON（Interface Representation for hands-ON programming）を使用してAI Engineプログラミングを始めるための環境セットアップについて説明します。
+このプログラミングガイドは、Ryzen™ AIラップトップおよびミニPCに搭載されているNPUのアプリケーションプログラミングに焦点を当てています。Ryzen™ AI CPUの最新情報は[こちら](https://www.amd.com/en/products/processors/consumer/ryzen-ai.html)でご確認いただけます。
 
-## 内容
+## 推奨ハードウェアの例
 
-- ハードウェア要件
-- ソフトウェア環境のセットアップ
-- 開発ツールのインストール
-- 最初の動作確認
+* [Phoenix Point Mini PC: Minisforum EM780 : AMD Ryzen™ 7 7840U](https://www.minisforum.com/collections/amd-series/products/minisforum-em780)
+
+* [Hawk Point Mini PC: Minisforum UM890 Pro : AMD Ryzen™ 9 8945HS](https://www.minisforum.com/collections/amd-series/products/minisforum-um890-pro)
+
+* [Strix Point Mini PC: Minisforum AI X1 Pro : AMD Ryzen™ AI 9 HX 370](https://www.minisforum.com/products/minisforum-ai-x1-pro)
+
+* [Krackan Point Mini PC: ASRock 4x4 BOX-AI350 : AMD Ryzen™ AI 7 350](https://www.asrockind.com/en-gb/4X4%20BOX-AI350)
+
+## AMD Ryzen™ AI 初期セットアップ
+
+#### **クイックセットアップの手順に必ず従ってください。**
+
+### [Linux上でAMD Ryzen™ AIを使い始める](https://github.com/Xilinx/mlir-aie/blob/main/README.md)（推奨）
+
+### [Linux上でIRONとMLIR-AIEをソースからビルド](https://github.com/Xilinx/mlir-aie/blob/main/docs/Building.md)
+
+-----
+
+[[トップ](../README.md)] [[次へ - Section 1](../section-1/README.md)]
 
 ---
 
-**翻訳作業中**: このセクションの詳細な翻訳は進行中です。最新の情報は[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-0)を参照してください。
+**注意**: このページは[公式ドキュメント](https://github.com/Xilinx/mlir-aie/tree/main/programming_guide/section-0)の非公式日本語訳です。

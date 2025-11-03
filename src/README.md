@@ -8,25 +8,25 @@ AIE配列のプログラミングでは、すべての空間的構成要素を�
 
 IRONは、ユーザーの経験レベルに合わせてAIE配列のプログラミングへの複数のエントリーポイントを提供します。最も高い抽象化レベルでは、基盤となるハードウェアアーキテクチャの深い知識を必要とせずに、専用タスクをワーカーに割り当てるプログラムを作成できます。AIE配列の設定をより細かく制御したいユーザーには、IRONは明示的な配置を行うAPIをサポートしています。本ガイドは、両方のプログラミングレベルが各セクションで説明されるように構成されています。
 
-> **注意**: NPUをIRONでプログラミングする方法を素早く理解したい方は、[ミニチュートリアル](./mini_tutorial/README.md)をご覧ください！
+> **注意**: NPUをIRONでプログラミングする方法を素早く理解したい方は、[ミニチュートリアル](mini_tutorial/index.html)をご覧ください！
 
-このIRON AIEプログラミングガイドでは、まずAIE配列の構造要素に対する言語バインディングを紹介します（[セクション1](./section-1/README.md)）。必要なデータを転送するための明示的なデータ移動の設定方法を説明した後（[セクション2](./section-2/README.md)）、AIE演算コアで最初のプログラムを実行できます（[セクション3](./section-3/README.md)）。[セクション4](./section-4/README.md)では、性能分析のためのトレース機能を追加し、演算密度の高いベクトル演算の活用方法を説明します。基本的なものから大規模なもの（機械学習やコンピュータビジョン）まで、より多くのベクトル設計例をセクション[5](./section-5/README.md)と[6](./section-6/README.md)で紹介します。最後に、[クイックリファレンス](./quick_reference.md)で最も重要なAPI要素をまとめています。
+このIRON AIEプログラミングガイドでは、まずAIE配列の構造要素に対する言語バインディングを紹介します（[セクション1](section-1/index.html)）。必要なデータを転送するための明示的なデータ移動の設定方法を説明した後（[セクション2](section-2/index.html)）、AIE演算コアで最初のプログラムを実行できます（[セクション3](section-3/index.html)）。[セクション4](section-4/index.html)では、性能分析のためのトレース機能を追加し、演算密度の高いベクトル演算の活用方法を説明します。基本的なものから大規模なもの（機械学習やコンピュータビジョン）まで、より多くのベクトル設計例をセクション[5](section-5/index.html)と[6](section-6/index.html)で紹介します。最後に、[クイックリファレンス](quick_reference.html)で最も重要なAPI要素をまとめています。
 
 ## 目次
 
-<details><summary><a href="./section-0/README.md">Section 0 - Getting Set Up for IRON</a></summary>
+<details><summary><a href="section-0/index.html">Section 0 - Getting Set Up for IRON</a></summary>
 
 * IRONでターゲットとする推奨ハードウェアの紹介
 * ハードウェア、ツール、環境のセットアップ手順
 </details>
 
-<details><summary><a href="./section-1/README.md">Section 1 - Basic AI Engine building blocks</a></summary>
+<details><summary><a href="section-1/index.html">Section 1 - Basic AI Engine building blocks</a></summary>
 
 * アプリケーション設計を表現するためのAI Engine構成要素の紹介
 * AIEタイルを定義するMLIRソースのPythonバインディング例
 </details>
 
-<details><summary><a href="./section-2/README.md">Section 2 - Data Movement (Object FIFOs)</a></summary>
+<details><summary><a href="section-2/index.html">Section 2 - Data Movement (Object FIFOs)</a></summary>
 
 * objectfifoとそれがタイル間の接続とAIE配列メモリ内のデータをどのように抽象化するかを紹介
 * 主要なobjectfifoデータ移動パターンの説明
@@ -35,19 +35,19 @@ IRONは、ユーザーの経験レベルに合わせてAIE配列のプログラ�
 * ホストとAIE配列間のランタイムデータ移動の説明
 </details>
 
-<details><summary><a href="./section-3/README.md">Section 3 - My First Program</a></summary>
+<details><summary><a href="section-3/index.html">Section 3 - My First Program</a></summary>
 
 * 最初のシンプルなプログラム（ベクトルスカラー乗算）の例を紹介
 * Ryzen™ AI対応ハードウェアで設計を実行する方法を説明
 </details>
 
-<details><summary><a href="./section-4/README.md">Section 4 - Performance Measurement & Vector Programming</a></summary>
+<details><summary><a href="section-4/index.html">Section 4 - Performance Measurement & Vector Programming</a></summary>
 
 * 性能測定（タイマー、トレース）の紹介
 * カーネルレベルでのベクトルプログラミングの説明
 </details>
 
-<details><summary><a href="./section-5/README.md">Section 5 - Example Vector Designs</a></summary>
+<details><summary><a href="section-5/index.html">Section 5 - Example Vector Designs</a></summary>
 
 * 性能測定の演習を含む追加のベクトル設計例：
     * パススルー
@@ -58,7 +58,7 @@ IRONは、ユーザーの経験レベルに合わせてAIE配列のプログラ�
     * その他
 </details>
 
-<details><summary><a href="./section-6/README.md">Section 6 - Larger Example Designs</a></summary>
+<details><summary><a href="section-6/index.html">Section 6 - Larger Example Designs</a></summary>
 
 * 複数のコアで性能を測定した大規模設計例：
     * エッジ検出
@@ -66,7 +66,7 @@ IRONは、ユーザーの経験レベルに合わせてAIE配列のプログラ�
     * その他
 </details>
 
-### [クイックリファレンス](./quick_reference.md)
+### [クイックリファレンス](quick_reference.html)
 
 ## AI Engineアーキテクチャドキュメント
 * [AIE1 Architecture Manual - AM009](https://docs.amd.com/r/en-US/am009-versal-ai-engine/Overview)

@@ -14,59 +14,45 @@ IRONは、ユーザーの経験レベルに合わせてAIE配列のプログラ�
 
 ## 目次
 
-<details><summary><a href="section-0/index.html">Section 0 - Getting Set Up for IRON</a></summary>
+- [Section 0 - Getting Set Up for IRON](section-0/index.html)
+  - IRONでターゲットとする推奨ハードウェアの紹介
+  - ハードウェア、ツール、環境のセットアップ手順
 
-* IRONでターゲットとする推奨ハードウェアの紹介
-* ハードウェア、ツール、環境のセットアップ手順
-</details>
+- [Section 1 - Basic AI Engine building blocks](section-1/index.html)
+  - アプリケーション設計を表現するためのAI Engine構成要素の紹介
+  - AIEタイルを定義するMLIRソースのPythonバインディング例
 
-<details><summary><a href="section-1/index.html">Section 1 - Basic AI Engine building blocks</a></summary>
+- [Section 2 - Data Movement (Object FIFOs)](section-2/index.html)
+  - objectfifoとそれがタイル間の接続とAIE配列メモリ内のデータをどのように抽象化するかを紹介
+  - 主要なobjectfifoデータ移動パターンの説明
+  - より複雑なobjectfifo接続パターン（broadcast、implicit copy、join、distribute）の紹介
+  - 実践的な例でobjectfifoを実演
+  - ホストとAIE配列間のランタイムデータ移動の説明
 
-* アプリケーション設計を表現するためのAI Engine構成要素の紹介
-* AIEタイルを定義するMLIRソースのPythonバインディング例
-</details>
+- [Section 3 - My First Program](section-3/index.html)
+  - 最初のシンプルなプログラム（ベクトルスカラー乗算）の例を紹介
+  - Ryzen™ AI対応ハードウェアで設計を実行する方法を説明
 
-<details><summary><a href="section-2/index.html">Section 2 - Data Movement (Object FIFOs)</a></summary>
+- [Section 4 - Performance Measurement & Vector Programming](section-4/index.html)
+  - 性能測定（タイマー、トレース）の紹介
+  - カーネルレベルでのベクトルプログラミングの説明
 
-* objectfifoとそれがタイル間の接続とAIE配列メモリ内のデータをどのように抽象化するかを紹介
-* 主要なobjectfifoデータ移動パターンの説明
-* より複雑なobjectfifo接続パターン（broadcast、implicit copy、join、distribute）の紹介
-* 実践的な例でobjectfifoを実演
-* ホストとAIE配列間のランタイムデータ移動の説明
-</details>
+- [Section 5 - Example Vector Designs](section-5/index.html)
+  - 性能測定の演習を含む追加のベクトル設計例：
+    - パススルー
+    - ベクトル $e^x$
+    - ベクトルスカラー加算
+    - GEMM
+    - CONV2D
+    - その他
 
-<details><summary><a href="section-3/index.html">Section 3 - My First Program</a></summary>
+- [Section 6 - Larger Example Designs](section-6/index.html)
+  - 複数のコアで性能を測定した大規模設計例：
+    - エッジ検出
+    - ResNet
+    - その他
 
-* 最初のシンプルなプログラム（ベクトルスカラー乗算）の例を紹介
-* Ryzen™ AI対応ハードウェアで設計を実行する方法を説明
-</details>
-
-<details><summary><a href="section-4/index.html">Section 4 - Performance Measurement & Vector Programming</a></summary>
-
-* 性能測定（タイマー、トレース）の紹介
-* カーネルレベルでのベクトルプログラミングの説明
-</details>
-
-<details><summary><a href="section-5/index.html">Section 5 - Example Vector Designs</a></summary>
-
-* 性能測定の演習を含む追加のベクトル設計例：
-    * パススルー
-    * ベクトル $e^x$
-    * ベクトルスカラー加算
-    * GEMM
-    * CONV2D
-    * その他
-</details>
-
-<details><summary><a href="section-6/index.html">Section 6 - Larger Example Designs</a></summary>
-
-* 複数のコアで性能を測定した大規模設計例：
-    * エッジ検出
-    * ResNet
-    * その他
-</details>
-
-### [クイックリファレンス](quick_reference.html)
+- [クイックリファレンス](quick_reference.html)
 
 ## AI Engineアーキテクチャドキュメント
 * [AIE1 Architecture Manual - AM009](https://docs.amd.com/r/en-US/am009-versal-ai-engine/Overview)

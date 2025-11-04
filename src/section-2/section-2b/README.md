@@ -6,7 +6,7 @@ Object FIFOプリミティブは、いくつかのデータ移動パターンを
 
 Object FIFOは、柔軟なデータ移動パターンをサポートしており、単純な1対1の接続から複雑なマルチキャスト、データ分散、集約まで対応します。このセクションでは、4つの主要なパターンを紹介します。
 
-## 1. [再利用パターン（Reuse Pattern）](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/01_Reuse/)
+## 1. [再利用パターン（Reuse Pattern）](01_Reuse/index.html)
 
 **概念:**
 
@@ -22,9 +22,9 @@ Object FIFO内の解放されていないオブジェクトを再利用します
 - メモリ効率的なデータアクセスパターン
 - 明示的なコピー操作なしでデータ共有
 
-> **詳細な実装例**: [01_Reuse/](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/01_Reuse/)
+> **詳細な実装例**: [01_Reuse/](01_Reuse/index.html)
 
-## 2. [ブロードキャストパターン（Broadcast Pattern）](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/02_Broadcast/)
+## 2. [ブロードキャストパターン（Broadcast Pattern）](02_Broadcast/index.html)
 
 **概念:**
 
@@ -48,9 +48,9 @@ Object FIFO内の解放されていないオブジェクトを再利用します
                          └→ コンシューマ3
 ```
 
-> **詳細な実装例**: [02_Broadcast/](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/02_Broadcast/)
+> **詳細な実装例**: [02_Broadcast/](02_Broadcast/index.html)
 
-## 3. [暗黙的コピーパターン（Implicit Copy）: 分散（Distribute）と結合（Join）](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/03_Implicit_Copy/)
+## 3. [暗黙的コピーパターン（Implicit Copy）: 分散（Distribute）と結合（Join）](03_Implicit_Copy/index.html)
 
 このパターンでは、Object FIFO間でのデータの暗黙的コピーをサポートし、以下の機能を提供します：
 
@@ -96,9 +96,9 @@ Object FIFO内の解放されていないオブジェクトを再利用します
 プロデューサ3 → Object FIFO → [2N/3:N] →
 ```
 
-> **詳細な実装例**: [03_Implicit_Copy/](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/03_Implicit_Copy/)
+> **詳細な実装例**: [03_Implicit_Copy/](03_Implicit_Copy/index.html)
 
-## 4. [リピートパターン（Repeat Pattern）](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/04_Repeat/)
+## 4. [リピートパターン（Repeat Pattern）](04_Repeat/index.html)
 
 **概念:**
 
@@ -114,7 +114,7 @@ Object FIFO Link機能を活用して、プロデューサからのデータを�
 - 追加のメモリコピー不要
 - パイプライン処理での活用
 
-> **詳細な実装例**: [04_Repeat/](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-2/section-2b/04_Repeat/)
+> **詳細な実装例**: [04_Repeat/](04_Repeat/index.html)
 
 ## パターンの組み合わせ
 

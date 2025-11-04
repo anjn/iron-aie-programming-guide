@@ -1,6 +1,6 @@
 # IRON AIE Programming Guide（非公式日本語訳）
 
-<img align="right" width="300" height="300" src="https://raw.githubusercontent.com/Xilinx/mlir-aie/main/programming_guide/assets/AIEarray.svg">
+<img align="right" width="300" height="300" src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/programming_guide/assets/AIEarray.svg">
 
 AI Engine（AIE）アレイは、**空間演算アーキテクチャ**（spatial compute architecture）です。空間的に分散された演算ユニットとメモリを持つ、モジュラーでスケーラブルなシステムです。その演算密度の高いベクトル処理は、明示的にスケジュールされたデータ移動と独立して並行実行されます。各AIEのベクトル演算コア（緑色）は、そのL1スクラッチパッドメモリ（水色）内のデータに対してのみ動作できるため、Direct Memory Access（DMA）チャネル（紫色）が、メモリ階層の任意のレベルから、スイッチ型（濃青色）相互接続ネットワークを介して双方向にデータを転送します。
 

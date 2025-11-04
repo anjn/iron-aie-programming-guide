@@ -157,7 +157,7 @@ void scale_vectorized(T *a, T *c, int32_t factor, const int32_t N) {
 
 コードをさらに最適化する最初のステップは、AIEベクトルユニットの全体像を持つことです。これは[AIE-MLアーキテクチャマニュアル（am020）](https://docs.amd.com/r/en-US/am020-versal-aie-ml/Fixed-Point-Vector-Unit)にあります。以下は、マニュアルからのベクトルユニットの図です。
 
-<img src="../../assets/aie-ml_vector_unit.png" title="AIE-ML Vector Unit." height=450>
+<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/programming_guide/assets/aie-ml_vector_unit.png" title="AIE-ML Vector Unit." height=450>
 
 ご覧のとおり、ベクトルレジスタは2つの並列ロードユニットからロードされ、それぞれがローカルL1メモリからクロックサイクルあたり256ビットをロードできます。12個の512ビットベクトルレジスタがあり、各Permuteブロックに供給され、最終的にMultiplierブロックに供給されます。したがって、クロックサイクルあたり2×256ビットの並列ロードの観点から常に考えることが重要です。たとえば、計算を行うためにクロックあたり2048ビットのデータをロードしようとすると、複数のサイクルが必要になるため、効率が低下します。もう1つの重要な注意点は、ロードは異なるL1メモリバンクから行う必要があることです。そうしないと、バンク競合が発生します。バンク競合のペナルティは1サイクルですが、最適な性能が低下します。
 
@@ -169,7 +169,7 @@ void scale_vectorized(T *a, T *c, int32_t factor, const int32_t N) {
 
 データが計算されると（1サイクルで、または複数のサイクルにわたって累算されて）、結果はStore Unitを介してローカルL1メモリに書き戻すことができます。これは2つのロードユニットを反映していますが、ストアユニットは1つだけです。アキュムレータレジスタとベクトルレジスタまたはローカルL1メモリの間のブリッジングには、SRSユニット（shift-round-saturate）を利用します。これは、多数の設定可能な丸めおよび飽和モードを使用してシフト、丸め、飽和を行います。
 
-<img src="../../assets/aie-ml_srs_ups.png" title="AIE-ML SRS UPS Unit." height=230>
+<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/programming_guide/assets/aie-ml_srs_ups.png" title="AIE-ML SRS UPS Unit." height=230>
 
 SRSパスは上図の右側にあり、相関するパスであるUpshift（UPS）パスは左側にあります。Upshiftはベクトルレジスタからアキュムレータレジスタにデータを移動します。
 
@@ -177,7 +177,7 @@ SRSパスは上図の右側にあり、相関するパスであるUpshift（UPS�
 
 最後に、シフト、シャッフル、単純な加算、比較、およびその他の多数のベクトル関数を実行する追加の並列処理パスがあります。このパスは、メイン整数ベクトルデータパスと並行して実行され、VMACデータパスを必要とせずに前述の関数を実行するようにタスク化される場合があります。
 
-<img src="../../assets/aie-ml_shift_adder_path.png" title="AIE-ML Shift Adder Unit." height=200>
+<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/programming_guide/assets/aie-ml_shift_adder_path.png" title="AIE-ML Shift Adder Unit." height=200>
 
 この処理データパスと、データがローカルメモリとの間でロードおよび格納される方法を念頭に置いておくことは非常に役立ちます。次のステップは、アプリケーションで理想的な性能にどれだけ近いかを確認し、結果をより詳細に調べて、改善できる場所をよりよく理解することです。
 
@@ -185,7 +185,7 @@ SRSパスは上図の右側にあり、相関するパスであるUpshift（UPS�
 
 アーキテクチャをよりよく理解したので、ハードウェア効率をより詳しく見てみましょう。次の図は、説明したさまざまなAIEアーキテクチャブロックと、一般化された計算の表を示しています。
 
-<img src="../../assets/aie_compute_details1.png" title="AIE Compute Details." height=450>
+<img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/programming_guide/assets/aie_compute_details1.png" title="AIE Compute Details." height=450>
 
 > **注意** - 行列乗算モードの表は、AIE APIユーザーガイドの[こちら](https://www.xilinx.com/htmldocs/xilinx2023_2/aiengine_api/aie_api/doc/group__group__mmul.html)にあります。さまざまなビット精度の合計MAC数を確認する別の方法は、[AM020仕様](https://docs.amd.com/r/en-US/am020-versal-aie-ml/Functional-Overview)の`Table: Supported Precision Width of the Vector Data Path`です。
 
@@ -224,7 +224,7 @@ SRSパスは上図の右側にあり、相関するパスであるUpshift（UPS�
 
 1. 最終的な最適化されたコードを再実行して、結果の波形を見てください。
 
-    <img src="../../assets/aie_vector_scalar_ml_opt1.png" title="AIE Compute Details." height=250>
+    <img src="https://raw.githubusercontent.com/Xilinx/mlir-aie/v1.1.1/programming_guide/assets/aie_vector_scalar_ml_opt1.png" title="AIE Compute Details." height=250>
 
     PortRunning0とPortRunning1のブロックにマウスを合わせると、チャンクあたりの測定サイクル数はどれくらいですか？
    <details>

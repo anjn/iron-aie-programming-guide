@@ -1,235 +1,105 @@
 # Section 4a - タイマー
 
-## 概要
+* [Section 4 - 性能測定とベクトルプログラミング](../README.md)
+    * Section 4a - タイマー
+    * [Section 4b - トレース](../section-4b/README.md)
+    * [Section 4c - カーネルのベクトル化と最適化](../section-4c/README.md)
 
-このセクションでは、AMD AI Engineアクセラレータでのアプリケーション性能測定にタイマーを使用する方法について説明します。
+-----
 
-## 核心概念
+AMD AI Engineアクセラレータでのアプリケーション性能測定にタイマーを使用できます。このタイマーは、OS、カーネルドライバ、AIE配列への作業のディスパッチ、AIEコアでの計算など、ソフトウェアスタック全体のオーバーヘッドを含む「ウォールクロック」時間を測定します。このオーバーヘッドは含まれますが、複数回の反復を実行する場合や計算集約的なワークロードを実行する場合に、意味のある実用的な性能上限データを提供します。
 
-### アプリケーションタイマーの目的
+## アプリケーションタイマー - test.cppの修正
 
-「ウォールクロック」時間を測定することで、以下を含むソフトウェアスタック全体のオーバーヘッドをキャプチャします：
-
-- OS とのやり取り
-- カーネルドライバ通信
-- AIE配列への作業のディスパッチ
-- AIEコアでの計算
-
-オーバーヘッドは含まれますが、複数回の反復や計算集約的なワークロードを実行する場合に意味のある実用的な性能上限データを提供します。
-
-### 実装アプローチ
-
-開発者は、C++のchronoライブラリを使用してタイミングを実装します：
+アプリケーションタイマーを追加するには、[test.cpp](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-4/section-4a/test.cpp)を修正します。chronoライブラリを使用して、カーネル関数の実行前後で時刻をキャプチャします。単一のカーネル実行の場合、次のようになります：
 
 ```cpp
-#include <chrono>
-
-// カーネル関数実行前
-auto start = std::chrono::high_resolution_clock::now();
-
-// カーネル実行
-kernel_function();
-
-// カーネル関数実行後
-auto stop = std::chrono::high_resolution_clock::now();
-
-// マイクロ秒単位で期間を計算
-auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-    stop - start
-);
-
-std::cout << "実行時間: " << duration.count() << " μs" << std::endl;
-```
-
-## 測定戦略
-
-### 1. 単一実行ベースライン
-
-**目的:** 初期の性能推定を取得
-
-**実装:**
-
-```cpp
-auto start = std::chrono::high_resolution_clock::now();
-kernel.run();
-auto stop = std::chrono::high_resolution_clock::now();
-
-auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-    stop - start
-);
-std::cout << "単一実行時間: " << duration.count() << " μs" << std::endl;
-```
-
-### 2. 複数回反復ベンチマーク
-
-**目的:** 変動を平滑化し、定常状態の性能をキャプチャ
-
-**実装:**
-
-```cpp
-const int num_iterations = 100;
-std::vector<long> timings;
-
-for (int i = 0; i < num_iterations; i++) {
     auto start = std::chrono::high_resolution_clock::now();
-    kernel.run();
+    unsigned int opcode = 3;
+    auto run = kernel(opcode, bo_instr, instr_v.size(), bo_inA, bo_inFactor, bo_outC);
+    run.wait();
     auto stop = std::chrono::high_resolution_clock::now();
 
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        stop - start
-    );
-    timings.push_back(duration.count());
-}
-
-// 統計の計算
-long sum = std::accumulate(timings.begin(), timings.end(), 0L);
-long avg = sum / num_iterations;
-long min = *std::min_element(timings.begin(), timings.end());
-long max = *std::max_element(timings.begin(), timings.end());
-
-std::cout << "平均: " << avg << " μs" << std::endl;
-std::cout << "最小: " << min << " μs" << std::endl;
-std::cout << "最大: " << max << " μs" << std::endl;
+    float npu_time = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+    std::cout << "NPU time: " << npu_time << "us." << std::endl;
 ```
 
-**利点:**
-- 統計的に意味のある結果
-- 外れ値の識別
-- より信頼性の高い性能データ
+## 複数回の反復
 
-### 3. ウォームアップ反復
-
-**目的:** 起動オーバーヘッドを除外
-
-初期のカーネル実行は、しばしば起動オーバーヘッドを示します。方法論では、代表的な定常状態のタイミングを達成し、外れ値を減らすために、予備反復（測定にカウントされない）を実行することを推奨します。
-
-**実装:**
+複数回の反復を使用すると、定常状態のカーネル実行時間をよりよくキャプチャできます。基本的なforループは次のようになります：
 
 ```cpp
-const int warmup_iterations = 4;
-const int num_iterations = 10;
-
-// ウォームアップ（測定しない）
-for (int i = 0; i < warmup_iterations; i++) {
-    kernel.run();
-}
-
-// 実際の測定
-std::vector<long> timings;
-for (int i = 0; i < num_iterations; i++) {
-    auto start = std::chrono::high_resolution_clock::now();
-    kernel.run();
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        stop - start
-    );
-    timings.push_back(duration.count());
-}
+  unsigned num_iter = n_iterations + n_warmup_iterations;
+  for (unsigned iter = 0; iter < num_iter; iter++) {
+    <... kernel run code ...>
+  }
 ```
 
-**理由:**
-- 最初の実行はキャッシュが冷たい
-- ドライバの初期化オーバーヘッド
-- その他の起動コスト
+### ウォームアップ反復
 
-### 4. 拡張メトリクス
-
-実行時間統計に加えて、開発者はカーネルのMAC（乗算累算）数がわかっている場合、追加の性能指標を計算できます。
-
-**GFLOPS計算例:**
+初期のカーネル実行はしばしば起動オーバーヘッドを示すため、いくつかのウォームアップ反復を実行することをお勧めします。これにより、代表的な定常状態のタイミングを達成し、外れ値を減らすことができます。ウォームアップ反復は平均実行時間にカウントしないでください。
 
 ```cpp
-// カーネル情報
-const long ops_per_iteration = 2048;  // 例：1024回の乗算累算 = 2048 ops
-const double avg_time_sec = avg_time_us / 1e6;
-
-// GFLOPS = (Operations) / (Time in seconds) / 1e9
-double gflops = (ops_per_iteration * num_iterations) / avg_time_sec / 1e9;
-
-std::cout << "性能: " << gflops << " GFLOPS" << std::endl;
+  for (unsigned iter = 0; iter < num_iter; iter++) {
+    <... kernel run code ...>
+    if (iter < n_warmup_iterations) {
+      /* Warmup iterations do not count towards average runtime. */
+      continue;
+    }
+    <... verify and measure timers ...>
+  }
 ```
 
-**その他の有用なメトリクス:**
-- スループット（要素/秒）
-- 帯域幅使用率（GB/s）
-- 効率（理論的ピークに対する%）
+### タイマーデータの蓄積
 
-## 実践演習
-
-ドキュメントでは、テストプログラムの構築、実行、反復を通じて、4つの段階的な演習をユーザーに案内します：
-
-### 演習1: 基本的な単一実行
-
-```bash
-make
-make run
-```
-
-**学習内容:** 基本的なタイミング測定
-
-### 演習2: 複数回実行
-
-コードを修正して10回反復を実行：
+各反復でタイマーデータを蓄積して、平均、最小、最大の実行時間を計算できます：
 
 ```cpp
-const int num_iterations = 10;
-for (int i = 0; i < num_iterations; i++) {
-    // タイミング測定
-}
+  for (unsigned iter = 0; iter < num_iter; iter++) {
+    <... kernel run code, warmup conditional, verify, and measure timers ...>
+    npu_time_total += npu_time;
+    npu_time_min = (npu_time < npu_time_min) ? npu_time : npu_time_min;
+    npu_time_max = (npu_time > npu_time_max) ? npu_time : npu_time_max;
+  }
 ```
 
-**学習内容:** 統計的な信頼性の向上
+### 結果の計算と出力
 
-### 演習3: ウォームアップ追加
-
-4回のウォームアップサイクルを追加：
+すべての反復を実行した後、結果を計算して出力します：
 
 ```cpp
-const int warmup_iterations = 4;
-// ウォームアップループ
-for (int i = 0; i < warmup_iterations; i++) {
-    kernel.run();
-}
+  std::cout << "Avg NPU time: " << npu_time_total / n_iterations << "us." << std::endl;
+  std::cout << "Min NPU time: " << npu_time_min << "us." << std::endl;
+  std::cout << "Max NPU time: " << npu_time_max << "us." << std::endl;
 ```
 
-**学習内容:** 起動オーバーヘッドの除外
+カーネルのMAC（乗算累算）数がわかっている場合は、GFLOPSなどの追加の性能メトリクスを計算できます。詳細については、[matrix_multiplication/test.cpp](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_examples/basic/matrix_multiplication/test.cpp#L170)を参照してください。
 
-### 演習4: 詳細な統計
+## 演習
 
-平均、最小、最大を計算：
+1. [test.cpp](https://github.com/Xilinx/mlir-aie/tree/v1.1.1/programming_guide/section-4/section-4a/test.cpp)をビルドして実行します（`make`と`make run`）。`Avg NPU time`の値はどの範囲ですか？
+   <details>
+   <summary>答えを見る</summary>
+   答えは300-600usのどこかです
+   </details>
 
-```cpp
-// 統計計算コードの追加
-long avg = sum / num_iterations;
-long min = *std::min_element(timings.begin(), timings.end());
-long max = *std::max_element(timings.begin(), timings.end());
-```
+2. `n_iterations`を1から10に変更して再度実行します。`Avg NPU time`の値はどうなりましたか？
+   <details>
+   <summary>答えを見る</summary>
+   答えは依然として300-600usのどこかですが、以前とは異なる可能性が高いです
+   </details>
 
-**学習内容:** より詳細な性能分析
+3. `n_warmup_iterations`を0から4に変更します。`Avg NPU time`の値はどうなりましたか？
+   <details>
+   <summary>答えを見る</summary>
+   今回は、300-400usの狭い範囲が表示されます
+   </details>
 
-## ベストプラクティス
-
-### 測定の精度向上
-
-1. **十分な反復回数**: 最低10回、理想的には100回以上
-2. **ウォームアップ**: 常にウォームアップ反復を含める
-3. **環境の安定性**: 他のプロセスの影響を最小化
-4. **一貫性のある条件**: 同じ入力サイズとパターンを使用
-
-### 結果の解釈
-
-- **平均**: 典型的な性能を表す
-- **最小**: 理想的な条件下の性能
-- **最大**: 最悪ケースのシナリオ
-- **標準偏差**: 変動の尺度
-
-### よくある落とし穴
-
-- ウォームアップなしでの測定
-- 単一実行のみに依存
-- システム負荷を考慮しない
-- デバッグビルドでの測定
+4. `n_iterations`を10から100に変更します。`Avg NPU time`の値はどうなりましたか？
+   <details>
+   <summary>答えを見る</summary>
+   今回は、200-300usのより低い平均範囲が表示されます
+   </details>
 
 ---
 

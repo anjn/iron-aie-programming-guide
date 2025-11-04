@@ -21,6 +21,11 @@
     - [2d-2 - DMATasks](./section-2/section-2d/DMATasks.md)
   - [2e - マルチコア設計](./section-2/section-2e/README.md)
   - [2f - 実践的な例](./section-2/section-2f/README.md)
+    - [2f-1 - シングル/ダブルバッファ](./section-2/section-2f/01_single_double_buffer/README.md)
+    - [2f-2 - 外部メモリからコアへ](./section-2/section-2f/02_external_mem_to_core/README.md)
+    - [2f-3 - L2経由で外部メモリからコアへ](./section-2/section-2f/03_external_mem_to_core_L2/README.md)
+    - [2f-4 - L2からの分散](./section-2/section-2f/04_distribute_L2/README.md)
+    - [2f-5 - L2での結合](./section-2/section-2f/05_join_L2/README.md)
   - [2g - DMAプログラミング](./section-2/section-2g/README.md)
 
 - [Section 3 - はじめてのプログラム](./section-3/README.md)
